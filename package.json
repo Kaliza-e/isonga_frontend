@@ -1,0 +1,25 @@
+{
+  "name": "isonga-connect-client",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@12.18.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "dev:web": "pnpm --filter @isonga/web dev",
+    "build:web": "pnpm --filter @isonga/web build",
+    "lint:web": "pnpm --filter @isonga/web lint",
+    "type-check:web": "pnpm --filter @isonga/web type-check",
+    "dev:mobile": "pnpm --filter @isonga/mobile start",
+    "build:mobile": "pnpm --filter @isonga/mobile build",
+    "type-check:mobile": "pnpm --filter @isonga/mobile type-check",
+    "type-check:shared": "pnpm --filter @isonga/shared type-check"
+  },
+  "devDependencies": {
+    "turbo": "^2.1.0",
+    "typescript": "^5.3.3"
+  }
+}
+

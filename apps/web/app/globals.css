@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #16a34a;
+  --color-primary-dark: #087a3e;
+  --color-primary-light: #ddf7e8;
+  --color-mint: #f0fbf5;
+  --color-mint-light: #f7fdfa;
+  --color-main-text: #172b24;
+  --color-secondary-text: #64746c;
+  --color-border-subtle: #e3eee7;
+  --color-warning: #f5b942;
+  --color-error: #e45c5c;
+  --color-card-bg: #ffffff;
+}
+
+:root {
+  --background: #f0fbf5;
+  --foreground: #172b24;
+  --primary: #16a34a;
+  --primary-dark: #087a3e;
+  --primary-light: #ddf7e8;
+  --border: #e3eee7;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom delicate scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0fbf5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbdcd3;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8c4b5;
+}
+
+/* Subtle Dotted Pattern */
+.bg-pattern-dots {
+  background-image: radial-gradient(rgba(14, 143, 201, 0.18) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+.bg-pattern-dots-subtle {
+  background-image: radial-gradient(rgba(14, 143, 201, 0.09) 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+}
+
+.bg-pattern-dots-green {
+  background-image: radial-gradient(rgba(22, 163, 74, 0.15) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
