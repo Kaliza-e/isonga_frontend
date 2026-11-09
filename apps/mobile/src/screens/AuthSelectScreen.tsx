@@ -7,6 +7,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { colors } from '../theme/colors';
+import { IsongaLogo } from '../components/Logo';
 import {
   Users,
   ShieldCheck,
@@ -23,9 +24,7 @@ export function AuthSelectScreen({ navigation }: any) {
       {/* Brand Header */}
       <View style={styles.header}>
         <View style={styles.logoBadge}>
-          <View style={styles.logoCircleBlue} />
-          <View style={styles.logoCircleGreen} />
-          <View style={styles.logoCircleYellow} />
+          <IsongaLogo size={68} />
         </View>
 
         <Text style={styles.title}>Welcome to{'\n'}Isonga Connect</Text>

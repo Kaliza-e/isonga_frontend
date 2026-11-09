@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { colors } from '../theme/colors';
 import { useMobileAuth } from '../context/AuthContext';
+import { IsongaLogo } from '../components/Logo';
 import { User, Lock, Eye, EyeOff, Check } from 'lucide-react-native';
 
 export function WelcomeScreen({ navigation }: any) {
@@ -52,9 +53,7 @@ export function WelcomeScreen({ navigation }: any) {
         {/* Brand Header */}
         <View style={styles.header}>
           <View style={styles.logoBadge}>
-            <View style={styles.logoCircleBlue} />
-            <View style={styles.logoCircleGreen} />
-            <View style={styles.logoCircleYellow} />
+            <IsongaLogo size={56} />
           </View>
           <Text style={styles.title}>Welcome Back</Text>
           <Text style={styles.subtitle}>Sign in to continue</Text>

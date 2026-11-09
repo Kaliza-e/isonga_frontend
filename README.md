@@ -18,6 +18,7 @@ isonga-connect-client/
 │   │
 │   └── mobile/                  # @isonga/mobile - React Native / Expo 52 Application
 │       ├── src/                 # Screens (Resident & Village Chief), API, Theme
+│       ├── assets/              # App launcher, splash, and favicon icons
 │       ├── App.tsx              # Mobile navigation and root provider
 │       ├── index.js             # Monorepo entry point
 │       ├── metro.config.js      # Monorepo Metro bundler config
@@ -45,16 +46,20 @@ isonga-connect-client/
 ## 2. Prerequisites
 
 - **Node.js**: `v20.x` or `v22.x`
-- **PNPM**: `v10.x` or `v12.x` (`npm install -g pnpm`)
-- **Backend Service**: Running NestJS API (`http://localhost:3000/api/v1`) with PostgreSQL.
+- **PNPM**: Installed globally (`npm install -g pnpm`)
+- **Backend Service**: NestJS API with PostgreSQL running on port `3000` (`http://localhost:3000/api/v1`).
 
 ---
 
 ## 3. Quick Start & Installation
 
-Install dependencies across all workspace packages:
+If `pnpm` is not yet in your terminal's `PATH` on Windows, add it first:
+```powershell
+$env:PATH = "$env:APPDATA\npm;$env:PATH"
+```
 
-```bash
+Install dependencies across all workspaces:
+```powershell
 cd isonga-connect-client
 pnpm install
 ```
@@ -63,57 +68,90 @@ pnpm install
 
 ## 4. Running the Applications
 
-### A. Run All Apps in Parallel (Turbo)
-```bash
-# Starts both web and mobile simultaneously
-pnpm dev
+### Step 1: Start Backend (Terminal 1)
+```powershell
+cd isonga_backend
+npm run start:dev
 ```
+> The API will be available at **`http://localhost:3000/api/v1`** (Swagger docs at `http://localhost:3000/api/docs`).
 
-### B. Run Web Application Only (Super Admin Portal)
-```bash
-# From workspace root
+---
+
+### Step 2: Start Web Application (Terminal 2)
+The Next.js web application is the **Super Admin Portal**:
+
+```powershell
+# From the isonga-connect-client root:
+$env:PATH = "$env:APPDATA\npm;$env:PATH"
+cd isonga-connect-client
 pnpm dev:web
-
-# Or from apps/web directly
-cd apps/web
+```
+*Alternatively, run from `apps/web`:*
+```powershell
+cd isonga-connect-client/apps/web
 pnpm dev
 ```
-> Web portal runs on **`http://localhost:3001`**. Root `/` directs to `/admin/login`.
+> Super Admin portal runs at **`http://localhost:3001`**. Root `/` automatically redirects to `/admin/login`.
 
-### C. Run Mobile Application (Expo / React Native)
-```bash
-# Web browser preview (Fastest)
+---
+
+### Step 3: Start Mobile Application (Terminal 3)
+The React Native Expo application is the **Resident & Village Chief platform**:
+
+```powershell
+$env:PATH = "$env:APPDATA\npm;$env:PATH"
+cd isonga-connect-client/apps/mobile
+npx expo start -c
+```
+
+Once Metro Bundler starts:
+- Press **`w`** to open in the **Web Browser** (instant preview).
+- Press **`a`** to open on an **Android Emulator**.
+- Scan the **QR Code** using **Expo Go** on a physical Android or iOS device.
+
+*Alternatively, run dedicated commands directly:*
+```powershell
+# Web browser preview directly:
 pnpm --filter @isonga/mobile web
 
-# Expo Go (Scan QR code with physical phone)
-pnpm --filter @isonga/mobile start
-
-# Android Emulator
+# Android emulator directly:
 pnpm --filter @isonga/mobile android
 
-# iOS Simulator (macOS only)
+# iOS simulator (macOS only):
 pnpm --filter @isonga/mobile ios
 ```
 
 ---
 
-## 5. Build & Type-Check Verification
+## 5. Verified Test Credentials
 
-```bash
-# Type-check everything
+| Role | Identifier (Phone or Email) | Password | Screen Routed |
+| :--- | :--- | :--- | :--- |
+| **Super Admin (Web Portal)** | `kalizaesther5@gmail.com` or `+250788999888` | `Password123!` | `/admin/dashboard` |
+| **Village Chief (Mobile App)** | `+250788999888` or `kalizaesther5@gmail.com` | `Password123!` | Chief Portal (Broadcasting Console) |
+| **Resident (Mobile App)** | Register with any Rwandan number (`+25078XXXXXXX`) | Custom (≥ 8 chars) | Resident Announcements Feed & Tabs |
+
+---
+
+## 6. Build & Type-Check Verification
+
+```powershell
+$env:PATH = "$env:APPDATA\npm;$env:PATH"
+cd isonga-connect-client
+
+# Run TypeScript checks across all workspace packages
 pnpm type-check
 
-# Build both applications
-pnpm build
+# Build Super Admin Next.js web production bundle
+pnpm build:web
 
-# Target specific packages
-pnpm build:web      # Next.js optimized production build
-pnpm build:mobile   # Expo export for Web, Android, and iOS
+# Build Expo Mobile app bundles (Web, iOS, Android)
+pnpm build:mobile
 ```
 
 ---
 
-## 6. Environment Variables
+## 7. Environment Variables
 
 ### Web (`apps/web/.env.local`):
 ```ini
@@ -122,18 +160,21 @@ NEXT_PUBLIC_API_URL=http://localhost:3000/api/v1
 
 ### Mobile (`apps/mobile/.env`):
 ```ini
-# Defaults to auto-resolving local host IP for physical device testing
+# Optional: defaults to auto-detecting your machine IP for Expo Go on physical phones
 EXPO_PUBLIC_API_URL=http://localhost:3000/api/v1
 ```
 
 ---
 
-## 7. Independent Deployment
+## 8. Independent Deployment
 
 - **Web (Vercel)**:
   - Root Directory: `apps/web`
   - Build Command: `pnpm run build`
   - Output Directory: `.next`
-- **Mobile (EAS / Expo)**:
-  - Run EAS commands inside `apps/mobile`: `eas build --platform android` or `eas build --platform ios`.
-
+- **Mobile (Expo EAS)**:
+  - Inside `apps/mobile`:
+    ```bash
+    eas build --platform android
+    eas build --platform ios
+    ```

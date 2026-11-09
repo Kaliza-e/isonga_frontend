@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { colors } from '../theme/colors';
 import { useMobileAuth } from '../context/AuthContext';
+import { IsongaLogo } from '../components/Logo';
 
 const { height } = Dimensions.get('window');
 
@@ -87,11 +88,9 @@ export function SplashScreen({ onFinish, navigation }: { onFinish?: (target?: st
           { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
         ]}
       >
-        {/* Stylized Isonga Community Logo */}
+        {/* Authentic Isonga Community Emblem */}
         <View style={styles.logoBadge}>
-          <View style={styles.logoCircleBlue} />
-          <View style={styles.logoCircleGreen} />
-          <View style={styles.logoCircleYellow} />
+          <IsongaLogo size={76} />
         </View>
 
         <Text style={styles.title}>Isonga{'\n'}Connect</Text>
