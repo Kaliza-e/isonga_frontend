@@ -7,24 +7,24 @@ export const residentsApi = {
       const res = await mobileApiClient<any>('/residents/me');
       return {
         id: res.id,
-        name: `${res.firstName || ''} ${res.lastName || ''}`.trim() || 'Aline Uwimana',
-        phone: res.phone || res.user?.phone || '+250 788 123 456',
+        name: `${res.firstName || ''} ${res.lastName || ''}`.trim() || 'Resident User',
+        phone: res.phone || res.user?.phone || '',
         role: 'RESIDENT',
-        district: res.area?.districtName || 'Gasabo District',
-        sector: res.area?.sectorName || 'Kimironko Sector',
-        cell: res.area?.name || 'Kimironko Cell',
+        district: res.area?.districtName || 'District',
+        sector: res.area?.sectorName || 'Sector',
+        cell: res.area?.name || 'Cell',
         language: res.preferredLanguage || 'rw',
         consentLaw058: !!res.consentGiven,
       };
     } catch {
       return {
-        id: 'res-aline',
-        name: 'Aline Uwimana',
-        phone: '+250 788 123 456',
+        id: '',
+        name: 'Resident User',
+        phone: '',
         role: 'RESIDENT',
-        district: 'Gasabo District',
-        sector: 'Kimironko Sector',
-        cell: 'Kimironko Cell',
+        district: 'District',
+        sector: 'Sector',
+        cell: 'Cell',
         language: 'rw',
         consentLaw058: true,
       };

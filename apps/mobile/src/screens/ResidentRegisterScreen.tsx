@@ -11,9 +11,10 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import * as Location from 'expo-location';
 import { colors } from '../theme/colors';
 import { useMobileAuth } from '../context/AuthContext';
-import { areasApi, AreaItem } from '../api/areas';
+import { areasApi, AreaItem, locateByCoordinates } from '../api/areas';
 import { authApi } from '../api/auth';
 import {
   User,
@@ -45,6 +46,31 @@ export function ResidentRegisterScreen({ navigation }: any) {
   const [selectedAreaId, setSelectedAreaId] = useState<string>('');
   const [selectedAreaName, setSelectedAreaName] = useState<string>('');
   const [isLoadingAreas, setIsLoadingAreas] = useState(true);
+  const [isGpsLocating, setIsGpsLocating] = useState(false);
+
+  // Auto-detect real location using GPS
+  const handleAutoDetectGPS = async () => {
+    setIsGpsLocating(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      let lat = -1.936;
+      let lng = 30.13;
+      if (status === 'granted') {
+        const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        lat = position.coords.latitude;
+        lng = position.coords.longitude;
+      }
+      const res = await locateByCoordinates(lat, lng);
+      if (res && res.area) {
+        setSelectedAreaId(res.area.id);
+        setSelectedAreaName(`${res.area.name} (GPS detected)`);
+      }
+    } catch (err: any) {
+      console.warn('GPS detection failed:', err?.message || err);
+    } finally {
+      setIsGpsLocating(false);
+    }
+  };
 
   // OTP Verification Step
   const [showOtpModal, setShowOtpModal] = useState(false);
@@ -259,7 +285,23 @@ export function ResidentRegisterScreen({ navigation }: any) {
 
           {/* Location Area Selection */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Residence Village / Area</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <Text style={styles.label}>Residence Village / Area</Text>
+              <TouchableOpacity
+                onPress={handleAutoDetectGPS}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                disabled={isGpsLocating}
+              >
+                {isGpsLocating ? (
+                  <ActivityIndicator size="small" color="#16A34A" />
+                ) : (
+                  <Navigation size={13} color="#16A34A" />
+                )}
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#16A34A' }}>
+                  {isGpsLocating ? 'Detecting...' : 'Use My GPS'}
+                </Text>
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity
               style={styles.areaSelector}
               onPress={() => {

@@ -5,7 +5,8 @@ declare const process: { env: Record<string, string | undefined> };
 
 function resolveApiBaseUrl(): string {
   if (process.env.EXPO_PUBLIC_API_URL) {
-    return process.env.EXPO_PUBLIC_API_URL;
+    const raw = process.env.EXPO_PUBLIC_API_URL.trim().replace(/\/+$/, '');
+    return raw.endsWith('/api/v1') ? raw : `${raw}/api/v1`;
   }
 
   // When running on physical phone or emulator via Expo Go, hostUri contains the dev machine IP

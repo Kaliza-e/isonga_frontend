@@ -8,19 +8,23 @@ import {
 } from 'react-native';
 import { colors } from '../theme/colors';
 import { NotificationItem } from '../types';
-import { notificationsApi, FALLBACK_NOTIFICATIONS } from '../api/notifications';
+import { notificationsApi } from '../api/notifications';
 import { Bell, ArrowLeft } from 'lucide-react-native';
 
 export function NotificationsScreen({ navigation }: any) {
   const [filter, setFilter] = useState<'ALL' | 'DELIVERED' | 'FAILED'>('ALL');
-  const [notifications, setNotifications] = useState<NotificationItem[]>(FALLBACK_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    notificationsApi.getNotifications().then((data) => {
-      if (data && data.length > 0) {
-        setNotifications(data);
-      }
-    });
+    notificationsApi
+      .getNotifications()
+      .then((data) => {
+        setNotifications(data || []);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   const filtered = notifications.filter((n) => {
@@ -75,43 +79,55 @@ export function NotificationsScreen({ navigation }: any) {
 
       {/* Notifications List */}
       <ScrollView contentContainerStyle={styles.listContent}>
-        {filtered.map((item) => {
-          const isDelivered = item.status === 'DELIVERED';
-          return (
-            <View key={item.id} style={styles.itemCard}>
-              <View style={styles.itemLeft}>
-                {/* Dot indicator */}
+        {filtered.length === 0 ? (
+          <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 48, paddingHorizontal: 24 }}>
+            <Bell size={36} color={colors.textMuted} />
+            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary, marginTop: 12 }}>
+              No Notifications Yet
+            </Text>
+            <Text style={{ fontSize: 13, color: colors.textSecondary, textAlign: 'center', marginTop: 4 }}>
+              Official community announcements and alerts will appear here.
+            </Text>
+          </View>
+        ) : (
+          filtered.map((item) => {
+            const isDelivered = item.status === 'DELIVERED';
+            return (
+              <View key={item.id} style={styles.itemCard}>
+                <View style={styles.itemLeft}>
+                  {/* Dot indicator */}
+                  <View
+                    style={[
+                      styles.statusDot,
+                      { backgroundColor: isDelivered ? colors.primary : colors.danger },
+                    ]}
+                  />
+                  <View style={styles.itemTexts}>
+                    <Text style={styles.itemTitle}>{item.title}</Text>
+                    <Text style={styles.itemTime}>{item.timeAgo}</Text>
+                  </View>
+                </View>
+
+                {/* Status Badge */}
                 <View
                   style={[
-                    styles.statusDot,
-                    { backgroundColor: isDelivered ? colors.primary : colors.danger },
-                  ]}
-                />
-                <View style={styles.itemTexts}>
-                  <Text style={styles.itemTitle}>{item.title}</Text>
-                  <Text style={styles.itemTime}>{item.timeAgo}</Text>
-                </View>
-              </View>
-
-              {/* Status Badge */}
-              <View
-                style={[
-                  styles.statusBadge,
-                  isDelivered ? styles.badgeDelivered : styles.badgeFailed,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.badgeText,
-                    isDelivered ? styles.badgeTextDelivered : styles.badgeTextFailed,
+                    styles.statusBadge,
+                    isDelivered ? styles.badgeDelivered : styles.badgeFailed,
                   ]}
                 >
-                  {isDelivered ? 'Delivered' : 'Failed'}
-                </Text>
+                  <Text
+                    style={[
+                      styles.badgeText,
+                      isDelivered ? styles.badgeTextDelivered : styles.badgeTextFailed,
+                    ]}
+                  >
+                    {isDelivered ? 'Delivered' : 'Failed'}
+                  </Text>
+                </View>
               </View>
-            </View>
-          );
-        })}
+            );
+          })
+        )}
       </ScrollView>
     </View>
   );

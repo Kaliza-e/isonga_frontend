@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
+import * as Location from 'expo-location';
 import { colors } from '../theme/colors';
 import { useLocation } from '../context/LocationContext';
 import { residentsApi } from '../api/residents';
@@ -36,15 +38,56 @@ export function LocationSelectorScreen({ navigation }: any) {
 
   const handleDetectGPS = async () => {
     setIsLocating(true);
+    setGpsMatch(null);
     try {
-      // Kigali Kimironko coordinates
-      const lat = -1.936;
-      const lng = 30.13;
+      // 1. Request real device geolocation permissions
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      
+      let lat = -1.936;
+      let lng = 30.13;
+
+      if (status === 'granted') {
+        const position = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+        lat = position.coords.latitude;
+        lng = position.coords.longitude;
+      } else {
+        Alert.alert(
+          'Location Permission',
+          'Permission not granted. Detecting nearest administrative area using default Rwanda location.'
+        );
+      }
+
+      // 2. Query Rwanda administrative hierarchy centroid locator with real GPS coords
       const res = await locateByCoordinates(lat, lng);
       if (res && res.area) {
         setSelectedCell(res.area.name);
-        setGpsMatch(`${res.area.name} (${res.totalResidents || 1} registered residents)`);
+        const residentCount = typeof res.totalResidents === 'number' ? res.totalResidents : 0;
+        setGpsMatch(
+          `${res.area.name} (${res.distanceKm ? res.distanceKm + 'km away, ' : ''}${residentCount} registered residents)`
+        );
+
+        if (res.ancestors && Array.isArray(res.ancestors)) {
+          const provinceName = res.ancestors.find((a: any) => a.level === 'PROVINCE')?.name || currentLocation.province;
+          const districtName = res.ancestors.find((a: any) => a.level === 'DISTRICT')?.name || currentLocation.district;
+          const sectorName = res.ancestors.find((a: any) => a.level === 'SECTOR')?.name || currentLocation.sector;
+
+          setLocation({
+            province: provinceName,
+            district: districtName,
+            sector: sectorName,
+            cell: res.area.name,
+            displayText: districtName.replace(' District', ''),
+          });
+        }
       }
+    } catch (err: any) {
+      console.warn('Geolocation lookup notice:', err?.message || err);
+      Alert.alert(
+        'GPS Detection',
+        'Could not detect precise satellite coordinates. You can select your village or cell manually below.'
+      );
     } finally {
       setIsLocating(false);
     }

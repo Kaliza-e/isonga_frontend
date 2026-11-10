@@ -2,6 +2,7 @@
   "expo": {
     "name": "Isonga Connect",
     "slug": "isonga-connect",
+    "owner": "kaliz1s-team",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -25,7 +26,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4b11bfb0-ec44-475c-95f2-09786608fa35"
+      }
     }
   }
 }
-

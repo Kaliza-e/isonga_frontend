@@ -107,19 +107,11 @@ export async function locateByCoordinates(lat: number, lng: number): Promise<any
   } catch {
     return {
       coordinates: { latitude: lat, longitude: lng },
-      matchedLocation: 'Kimironko Cell',
-      distanceKm: 0.5,
-      area: { id: 'kimironko-cell', name: 'Kimironko Cell', level: 'CELL' },
-      totalResidents: 1,
-      people: [
-        {
-          id: 'res-aline',
-          name: 'Aline Uwimana',
-          phoneMasked: '+250788***456',
-          village: 'Kimironko Cell',
-          role: 'RESIDENT',
-        },
-      ],
+      matchedLocation: 'Detected Area',
+      distanceKm: 0,
+      area: null,
+      totalResidents: 0,
+      people: [],
     };
   }
 }
@@ -129,16 +121,8 @@ export async function getAreaPeople(areaId: string): Promise<any> {
     return await mobileApiClient(`/areas/${areaId}/people`);
   } catch {
     return {
-      totalResidents: 1,
-      residents: [
-        {
-          id: 'res-aline',
-          name: 'Aline Uwimana',
-          phoneMasked: '+250788***456',
-          areaName: 'Kimironko Cell',
-          role: 'RESIDENT',
-        },
-      ],
+      totalResidents: 0,
+      residents: [],
     };
   }
 }

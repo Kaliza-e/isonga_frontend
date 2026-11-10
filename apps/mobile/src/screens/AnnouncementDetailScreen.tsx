@@ -21,19 +21,16 @@ import {
 
 export function AnnouncementDetailScreen({ route, navigation }: any) {
   const announcement: Announcement = route?.params?.announcement || {
-    id: 'ann-1',
-    title: 'Umuganda this Saturday',
-    content:
-      "Let's join together for community cleanliness this Saturday in Kimironko. Focus areas include gutter clearing, path weeding, and environmental hygiene.",
-    category: 'UMUGANDA',
-    priority: 'HIGH',
+    id: '',
+    title: 'Announcement Details',
+    content: 'No content available for this notice.',
+    category: 'ADMINISTRATIVE_NOTICES',
+    priority: 'NORMAL',
     status: 'PUBLISHED',
-    targetAreaName: 'Kimironko Sector',
-    authorName: 'Gasabo District (Local Authority)',
-    publishedAt: '2025-03-15T08:00:00Z',
-    createdAt: '2025-03-15T08:00:00Z',
-    imageUrl:
-      'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&q=80',
+    targetAreaName: 'Community Scope',
+    authorName: 'Authorized Local Authority',
+    publishedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
   };
 
   const handleShare = async () => {

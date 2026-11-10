@@ -66,8 +66,8 @@ export function ProfileScreen({ navigation }: any) {
             </View>
           </View>
 
-          <Text style={styles.userName}>{user?.name || 'Aline Uwimana'}</Text>
-          <Text style={styles.userPhone}>{user?.phone || '+250 788 123 456'}</Text>
+          <Text style={styles.userName}>{user?.name || 'Resident User'}</Text>
+          <Text style={styles.userPhone}>{user?.phone || 'Verified Resident'}</Text>
         </View>
 
         {/* Menu Items */}
