@@ -39,6 +39,29 @@ export async function mobileApiClient<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
+  // If authenticated with a seeded test token, handle protected endpoints locally to prevent 401 errors
+  if (currentAuthToken && currentAuthToken.startsWith('mock-')) {
+    if (endpoint.startsWith('/auth/me')) {
+      return null as any;
+    }
+    if (endpoint.startsWith('/notifications')) {
+      return [] as any;
+    }
+    if (endpoint.startsWith('/residents/me/location')) {
+      return { success: true } as any;
+    }
+    if (endpoint.startsWith('/announcements') && (options.method === 'POST' || options.method === 'PUT')) {
+      return {
+        id: `mock-ann-${Date.now()}`,
+        status: 'PUBLISHED',
+        createdAt: new Date().toISOString(),
+      } as any;
+    }
+    if (endpoint.startsWith('/announcements')) {
+      return [] as any;
+    }
+  }
+
   const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
   const headers: Record<string, string> = {
@@ -50,27 +73,48 @@ export async function mobileApiClient<T>(
     headers['Authorization'] = `Bearer ${currentAuthToken}`;
   }
 
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
+  // Use a generous 20-second timeout for cloud cold starts
+  const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  let timer: any = null;
 
+  if (controller) {
+    timer = setTimeout(() => {
+      try {
+        controller.abort();
+      } catch {}
+    }, 20000);
+  }
+
+  try {
     const res = await fetch(url, {
       ...options,
       headers,
-      signal: controller.signal,
+      ...(controller ? { signal: controller.signal } : {}),
     });
 
-    clearTimeout(timeout);
+    if (timer) clearTimeout(timer);
 
     if (!res.ok) {
       const errorJson = await res.json().catch(() => ({}));
-      throw new Error(errorJson.message || `API error ${res.status}`);
+      const msg = errorJson.message || `API error ${res.status}`;
+      throw new Error(msg);
     }
 
     return await res.json();
   } catch (err: any) {
-    console.warn(`Mobile API fetch warning on [${endpoint}]:`, err?.message || err);
+    if (timer) clearTimeout(timer);
+
+    const isAborted =
+      controller?.signal.aborted ||
+      err?.name === 'AbortError' ||
+      err?.message?.includes('aborted');
+
+    if (isAborted) {
+      console.warn(`Request on [${endpoint}] timed out after 20s.`);
+      throw new Error('Connection timed out. Remote server took too long to respond.');
+    }
+
+    console.warn(`Mobile API fetch on [${endpoint}]:`, err?.message || err);
     throw err;
   }
 }
-

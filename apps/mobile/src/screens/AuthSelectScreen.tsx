@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { colors } from '../theme/colors';
 import { IsongaLogo } from '../components/Logo';
@@ -15,123 +16,132 @@ import {
   ArrowRight,
   UserPlus,
   LogIn,
-  KeyRound,
   CheckCircle2,
   Sparkles,
+  Lock,
 } from 'lucide-react-native';
 
 export function AuthSelectScreen({ navigation }: any) {
   const { loginSeeded } = useMobileAuth();
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
       {/* Brand Header */}
       <View style={styles.header}>
         <View style={styles.logoBadge}>
-          <IsongaLogo size={68} />
+          <IsongaLogo size={58} />
         </View>
 
-        <Text style={styles.title}>Welcome to{'\n'}Isonga Connect</Text>
-        <Text style={styles.tagline}>Your community. Your updates.</Text>
-
-        <View style={styles.roleInstructionPill}>
-          <Text style={styles.roleInstructionText}>
-            Select your account access method below
-          </Text>
-        </View>
+        <Text style={styles.title}>Isonga Connect</Text>
+        <Text style={styles.motto}>Guhuza Abaturage n&apos;Ubuyobozi</Text>
+        <Text style={styles.tagline}>
+          Select your portal access method below
+        </Text>
       </View>
 
-      {/* ═══ OPTION 1: COMMUNITY RESIDENT ═══ */}
-      <View style={styles.roleCard}>
-        <View style={styles.roleCardHeader}>
-          <View style={[styles.iconWrap, { backgroundColor: '#DCFCE7' }]}>
-            <Users size={24} color="#16A34A" />
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* OPTION 1: COMMUNITY RESIDENT (Abaturage)             */}
+      {/* ═══════════════════════════════════════════════════ */}
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <View style={styles.residentIconWrap}>
+            <Users size={22} color="#15803D" />
           </View>
-          <View style={styles.roleTextGroup}>
-            <View style={styles.roleTitleRow}>
-              <Text style={styles.roleTitle}>Community Resident</Text>
-              <View style={styles.citizenBadge}>
-                <Text style={styles.citizenBadgeText}>Public</Text>
+          <View style={styles.cardHeaderMeta}>
+            <View style={styles.titleBadgeRow}>
+              <Text style={styles.cardTitle}>Community Resident</Text>
+              <View style={styles.publicBadge}>
+                <Text style={styles.publicBadgeText}>Public</Text>
               </View>
             </View>
-            <Text style={styles.roleSubtitle}>
-              Receive verified village & cell announcements, Umuganda notices, and health updates.
+            <Text style={styles.cardSubtitle}>
+              Receive verified village &amp; cell announcements, Umuganda schedules, and health alerts.
             </Text>
           </View>
         </View>
 
-        <View style={styles.cardDivider} />
-
+        {/* Buttons Group: Properly aligned & centered */}
         <View style={styles.buttonGroup}>
+          {/* Primary: Resident Sign In */}
           <TouchableOpacity
-            style={styles.primaryActionButton}
+            style={styles.residentSignInBtn}
             onPress={() => navigation.navigate('Login', { defaultRole: 'RESIDENT' })}
             activeOpacity={0.88}
           >
-            <LogIn size={16} color="#FFFFFF" />
-            <Text style={styles.primaryActionText}>Resident Sign In</Text>
-            <ArrowRight size={16} color="#FFFFFF" />
+            <LogIn size={18} color="#FFFFFF" />
+            <Text style={styles.residentSignInBtnText}>Resident Sign In</Text>
+            <ArrowRight size={18} color="#FFFFFF" />
           </TouchableOpacity>
 
+          {/* Secondary: Create Account */}
           <TouchableOpacity
-            style={styles.secondaryActionButton}
+            style={styles.createAccountBtn}
             onPress={() => navigation.navigate('ResidentRegister')}
-            activeOpacity={0.8}
+            activeOpacity={0.85}
           >
-            <UserPlus size={16} color="#087A3E" />
-            <Text style={styles.secondaryActionText}>Create New Resident Account</Text>
+            <UserPlus size={16} color="#15803D" />
+            <Text style={styles.createAccountBtnText}>Create New Resident Account</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* ═══ OPTION 2: CHIEF / LOCAL ADMINISTRATOR ═══ */}
-      <View style={[styles.roleCard, styles.adminRoleCard]}>
-        <View style={styles.roleCardHeader}>
-          <View style={[styles.iconWrap, { backgroundColor: '#FEF3C7' }]}>
-            <ShieldCheck size={24} color="#D97706" />
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* OPTION 2: CHIEF & LOCAL LEADER (Ubuyobozi)         */}
+      {/* ═══════════════════════════════════════════════════ */}
+      <View style={[styles.card, styles.adminCard]}>
+        <View style={styles.cardHeader}>
+          <View style={styles.adminIconWrap}>
+            <ShieldCheck size={22} color="#B45309" />
           </View>
-          <View style={styles.roleTextGroup}>
-            <View style={styles.roleTitleRow}>
-              <Text style={styles.roleTitle}>Chief & Local Leader</Text>
-              <View style={styles.authBadge}>
-                <Text style={styles.authBadgeText}>Authorized</Text>
+          <View style={styles.cardHeaderMeta}>
+            <View style={styles.titleBadgeRow}>
+              <Text style={styles.cardTitle}>Chief &amp; Local Leader</Text>
+              <View style={styles.adminBadge}>
+                <Text style={styles.adminBadgeText}>Authorized</Text>
               </View>
             </View>
-            <Text style={styles.roleSubtitle}>
-              Umukuru w&apos;Umudugudu, Akagari, and Umurenge administrators authorized to publish community updates.
+            <Text style={styles.cardSubtitle}>
+              Umukuru w&apos;Umudugudu, Akagari Executive, and Sector leaders publishing community notices.
             </Text>
           </View>
         </View>
 
-        {/* Security Notice */}
-        <View style={styles.noticeBox}>
-          <KeyRound size={14} color="#B45309" />
-          <Text style={styles.noticeText}>
-            Administrative accounts and jurisdiction scopes are provisioned through official local government structures.
-          </Text>
+        {/* Button: Properly aligned & centered */}
+        <View style={styles.buttonGroup}>
+          <TouchableOpacity
+            style={styles.adminSignInBtn}
+            onPress={() => navigation.navigate('Login', { defaultRole: 'ADMIN' })}
+            activeOpacity={0.88}
+          >
+            <ShieldCheck size={18} color="#FFFFFF" />
+            <Text style={styles.adminSignInBtnText}>Local Administrator Sign In</Text>
+            <ArrowRight size={18} color="#FFFFFF" />
+          </TouchableOpacity>
+
+          <View style={styles.adminVerificationNote}>
+            <Lock size={12} color="#92400E" />
+            <Text style={styles.adminVerificationNoteText}>
+              Verified against assigned village &amp; cell administrative jurisdiction
+            </Text>
+          </View>
         </View>
-
-        <View style={styles.cardDivider} />
-
-        <TouchableOpacity
-          style={styles.adminActionButton}
-          onPress={() => navigation.navigate('Login', { defaultRole: 'ADMIN' })}
-          activeOpacity={0.88}
-        >
-          <ShieldCheck size={16} color="#FFFFFF" />
-          <Text style={styles.adminActionText}>Local Administrator Sign In</Text>
-          <ArrowRight size={16} color="#FFFFFF" />
-        </TouchableOpacity>
       </View>
 
-      {/* ═══ QUICK TEST / SEEDED DEMO BAR ═══ */}
-      <View style={styles.demoBar}>
-        <View style={styles.demoBarHeader}>
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* QUICK 1-TAP DEMO SELECTOR (FOR TESTING)             */}
+      {/* ═══════════════════════════════════════════════════ */}
+      <View style={styles.demoBox}>
+        <View style={styles.demoHeader}>
           <Sparkles size={14} color="#047857" />
-          <Text style={styles.demoBarTitle}>Testing the App? 1-Tap Seeded Login:</Text>
+          <Text style={styles.demoTitle}>Testing Features? 1-Tap Seeded Login:</Text>
         </View>
-        <View style={styles.demoBarRow}>
+        <View style={styles.demoRow}>
           <TouchableOpacity
-            style={styles.demoPillAdmin}
+            style={styles.demoBtnAdmin}
             onPress={() => {
               loginSeeded('ADMIN');
               if (navigation?.replace) {
@@ -142,12 +152,12 @@ export function AuthSelectScreen({ navigation }: any) {
             }}
             activeOpacity={0.85}
           >
-            <ShieldCheck size={13} color="#D97706" />
-            <Text style={styles.demoPillAdminText}>Local Administrator</Text>
+            <ShieldCheck size={14} color="#B45309" />
+            <Text style={styles.demoBtnAdminText}>Chief / Admin</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.demoPillResident}
+            style={styles.demoBtnResident}
             onPress={() => {
               loginSeeded('RESIDENT');
               if (navigation?.replace) {
@@ -158,13 +168,13 @@ export function AuthSelectScreen({ navigation }: any) {
             }}
             activeOpacity={0.85}
           >
-            <Users size={13} color="#16A34A" />
-            <Text style={styles.demoPillResidentText}>Resident</Text>
+            <Users size={14} color="#15803D" />
+            <Text style={styles.demoBtnResidentText}>Resident</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Legal & Compliance Notice */}
+      {/* Legal & Compliance Footer */}
       <View style={styles.footerNote}>
         <CheckCircle2 size={13} color="#16A34A" />
         <Text style={styles.footerNoteText}>
@@ -178,226 +188,201 @@ export function AuthSelectScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0FBF5',
+    backgroundColor: '#F7FCF9',
   },
   content: {
-    paddingHorizontal: 22,
-    paddingTop: 54,
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'ios' ? 56 : 46,
     paddingBottom: 40,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 28,
+    marginBottom: 22,
   },
   logoBadge: {
-    flexDirection: 'row',
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    borderWidth: 1.5,
+    borderColor: '#D1FAE5',
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 3,
     marginBottom: 12,
-  },
-  logoCircleBlue: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#0284C7',
-  },
-  logoCircleGreen: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#16A34A',
-  },
-  logoCircleYellow: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#F59E0B',
   },
   title: {
     fontSize: 26,
-    fontWeight: '800',
-    color: '#172B24',
-    textAlign: 'center',
-    lineHeight: 32,
+    fontWeight: '900',
+    color: '#0F291E',
+    letterSpacing: -0.6,
+    marginBottom: 2,
   },
-  tagline: {
+  motto: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#087A3E',
-    marginTop: 4,
+    color: '#047857',
+    marginBottom: 4,
   },
-  roleInstructionPill: {
-    marginTop: 12,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#DDF7E8',
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 20,
-  },
-  roleInstructionText: {
-    fontSize: 11,
-    fontWeight: '600',
+  tagline: {
+    fontSize: 12,
     color: '#64746C',
   },
-  roleCard: {
+  card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 20,
+    borderRadius: 20,
+    padding: 18,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#E3EEE7',
-    shadowColor: '#172B24',
-    shadowOffset: { width: 0, height: 4 },
+    borderWidth: 1.5,
+    borderColor: '#DCFCE7',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 10,
+    shadowRadius: 8,
     elevation: 2,
   },
-  adminRoleCard: {
+  adminCard: {
     borderColor: '#FDE68A',
-    backgroundColor: '#FFFEFA',
+    backgroundColor: '#FFFFFF',
   },
-  roleCardHeader: {
+  cardHeader: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 14,
+    gap: 12,
+    marginBottom: 16,
   },
-  iconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+  residentIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#DCFCE7',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  roleTextGroup: {
+  adminIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FEF3C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardHeaderMeta: {
     flex: 1,
   },
-  roleTitleRow: {
+  titleBadgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 4,
   },
-  roleTitle: {
+  cardTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#172B24',
+    color: '#0F291E',
   },
-  citizenBadge: {
+  publicBadge: {
     backgroundColor: '#DCFCE7',
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 10,
+    borderRadius: 8,
   },
-  citizenBadgeText: {
+  publicBadgeText: {
     fontSize: 10,
-    fontWeight: '700',
-    color: '#166534',
+    fontWeight: '800',
+    color: '#15803D',
+    textTransform: 'uppercase',
   },
-  authBadge: {
+  adminBadge: {
     backgroundColor: '#FEF3C7',
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 10,
+    borderRadius: 8,
   },
-  authBadgeText: {
+  adminBadgeText: {
     fontSize: 10,
-    fontWeight: '700',
-    color: '#92400E',
+    fontWeight: '800',
+    color: '#B45309',
+    textTransform: 'uppercase',
   },
-  roleSubtitle: {
+  cardSubtitle: {
     fontSize: 12,
-    color: '#64746C',
-    lineHeight: 18,
-  },
-  noticeBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#FFFBEB',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-    marginTop: 12,
-  },
-  noticeText: {
-    fontSize: 11,
-    color: '#92400E',
-    lineHeight: 16,
-    flex: 1,
-  },
-  cardDivider: {
-    height: 1,
-    backgroundColor: '#F1F5F9',
-    marginVertical: 16,
+    color: '#4B6358',
+    lineHeight: 17,
   },
   buttonGroup: {
     gap: 10,
   },
-  primaryActionButton: {
+  residentSignInBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 10,
     backgroundColor: '#16A34A',
-    paddingVertical: 13,
-    borderRadius: 16,
+    height: 48,
+    borderRadius: 14,
     shadowColor: '#16A34A',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 3,
   },
-  primaryActionText: {
+  residentSignInBtnText: {
     color: '#FFFFFF',
     fontSize: 14,
-    fontWeight: '700',
-    flex: 1,
-    textAlign: 'center',
-    marginLeft: 16,
+    fontWeight: '800',
   },
-  secondaryActionButton: {
+  createAccountBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#F0FBF5',
+    backgroundColor: '#F0FDF4',
     borderWidth: 1.5,
-    borderColor: '#C6F0D7',
-    paddingVertical: 12,
-    borderRadius: 16,
+    borderColor: '#BBF7D0',
+    height: 44,
+    borderRadius: 14,
   },
-  secondaryActionText: {
-    color: '#087A3E',
+  createAccountBtnText: {
+    color: '#15803D',
     fontSize: 13,
     fontWeight: '700',
   },
-  adminActionButton: {
+  adminSignInBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 10,
     backgroundColor: '#D97706',
-    paddingVertical: 13,
-    borderRadius: 16,
+    height: 48,
+    borderRadius: 14,
     shadowColor: '#D97706',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 3,
   },
-  adminActionText: {
+  adminSignInBtnText: {
     color: '#FFFFFF',
     fontSize: 14,
-    fontWeight: '700',
-    flex: 1,
-    textAlign: 'center',
-    marginLeft: 16,
+    fontWeight: '800',
   },
-  demoBar: {
+  adminVerificationNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingTop: 2,
+  },
+  adminVerificationNoteText: {
+    fontSize: 11,
+    color: '#92400E',
+    textAlign: 'center',
+  },
+  demoBox: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 14,
@@ -406,28 +391,28 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 3,
-    elevation: 2,
+    elevation: 1,
   },
-  demoBarHeader: {
+  demoHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     marginBottom: 10,
   },
-  demoBarTitle: {
+  demoTitle: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '800',
     color: '#334155',
     textTransform: 'uppercase',
-    letterSpacing: 0.4,
+    letterSpacing: 0.3,
   },
-  demoBarRow: {
+  demoRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 10,
   },
-  demoPillAdmin: {
+  demoBtnAdmin: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -436,15 +421,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF3C7',
     borderWidth: 1,
     borderColor: '#FDE68A',
-    paddingVertical: 10,
-    borderRadius: 12,
+    height: 38,
+    borderRadius: 10,
   },
-  demoPillAdminText: {
-    fontSize: 11,
+  demoBtnAdminText: {
+    fontSize: 12,
     fontWeight: '800',
     color: '#92400E',
   },
-  demoPillResident: {
+  demoBtnResident: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -453,11 +438,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#DCFCE7',
     borderWidth: 1,
     borderColor: '#BBF7D0',
-    paddingVertical: 10,
-    borderRadius: 12,
+    height: 38,
+    borderRadius: 10,
   },
-  demoPillResidentText: {
-    fontSize: 11,
+  demoBtnResidentText: {
+    fontSize: 12,
     fontWeight: '800',
     color: '#166534',
   },
@@ -466,12 +451,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    marginTop: 10,
+    paddingVertical: 4,
   },
   footerNoteText: {
     fontSize: 11,
     color: '#64746C',
-    fontWeight: '500',
+    fontWeight: '600',
   },
 });
-
