@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { colors } from '../theme/colors';
 import { useMobileAuth } from '../context/AuthContext';
+import { SEEDED_ACCOUNTS } from '../data/seededData';
 import {
   User,
   Lock,
@@ -24,6 +25,8 @@ import {
   Users,
   AlertCircle,
   KeyRound,
+  Sparkles,
+  Zap,
 } from 'lucide-react-native';
 
 export function LoginScreen({ route, navigation }: any) {
@@ -35,7 +38,39 @@ export function LoginScreen({ route, navigation }: any) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login } = useMobileAuth();
+  const { login, loginSeeded } = useMobileAuth();
+
+  const handleQuickTest = (roleType: 'ADMIN' | 'RESIDENT') => {
+    const acc = roleType === 'ADMIN' ? SEEDED_ACCOUNTS.ADMIN : SEEDED_ACCOUNTS.RESIDENT;
+    setIsAdminMode(roleType === 'ADMIN');
+    setIdentifier(acc.phone);
+    setPassword(acc.password);
+    setErrorMessage(null);
+
+    // Instant seamless login for test verification
+    loginSeeded(roleType);
+    if (roleType === 'ADMIN') {
+      if (navigation?.replace) {
+        navigation.replace('ChiefPortal');
+      } else {
+        navigation.navigate('ChiefPortal');
+      }
+    } else {
+      if (navigation?.replace) {
+        navigation.replace('MainTabs');
+      } else {
+        navigation.navigate('MainTabs');
+      }
+    }
+  };
+
+  const handleAutofillOnly = (roleType: 'ADMIN' | 'RESIDENT') => {
+    const acc = roleType === 'ADMIN' ? SEEDED_ACCOUNTS.ADMIN : SEEDED_ACCOUNTS.RESIDENT;
+    setIsAdminMode(roleType === 'ADMIN');
+    setIdentifier(acc.phone);
+    setPassword(acc.password);
+    setErrorMessage(null);
+  };
 
   const handleSignIn = async () => {
     setErrorMessage(null);
@@ -233,6 +268,84 @@ export function LoginScreen({ route, navigation }: any) {
               </Text>
             </View>
           )}
+
+          {/* ═══════════════════════════════════════════════════ */}
+          {/* SEEDED TEST ACCOUNTS QUICK SELECTOR                  */}
+          {/* ═══════════════════════════════════════════════════ */}
+          <View style={styles.seededTestContainer}>
+            <View style={styles.seededTestHeader}>
+              <Sparkles size={16} color="#047857" />
+              <Text style={styles.seededTestTitle}>Seeded Test Accounts</Text>
+              <View style={styles.seededTestBadge}>
+                <Text style={styles.seededTestBadgeText}>1-Tap Demo</Text>
+              </View>
+            </View>
+            <Text style={styles.seededTestDesc}>
+              Tap either account to test the complete workflow for that role:
+            </Text>
+
+            {/* Local Administrator Account */}
+            <TouchableOpacity
+              style={[
+                styles.seededTestCard,
+                isAdminMode && styles.seededTestCardActiveAdmin,
+              ]}
+              onPress={() => handleQuickTest('ADMIN')}
+              activeOpacity={0.85}
+            >
+              <View style={styles.seededTestTopRow}>
+                <View style={styles.seededTestIconAdmin}>
+                  <ShieldCheck size={16} color="#B45309" />
+                </View>
+                <View style={styles.seededTestMeta}>
+                  <Text style={styles.seededTestName}>
+                    {SEEDED_ACCOUNTS.ADMIN.name}
+                  </Text>
+                  <Text style={styles.seededTestRoleTextAdmin}>
+                    Local Administrator (Chief)
+                  </Text>
+                </View>
+                <Zap size={14} color="#B45309" />
+              </View>
+              <Text style={styles.seededTestDetails}>
+                Phone: <Text style={styles.seededTestCode}>{SEEDED_ACCOUNTS.ADMIN.phone}</Text> • Pass: <Text style={styles.seededTestCode}>{SEEDED_ACCOUNTS.ADMIN.password}</Text>
+              </Text>
+              <Text style={styles.seededTestJurisdiction}>
+                Scope: Kimironko Cell • Gasabo District (Can broadcast announcements)
+              </Text>
+            </TouchableOpacity>
+
+            {/* Community Resident Account */}
+            <TouchableOpacity
+              style={[
+                styles.seededTestCard,
+                !isAdminMode && styles.seededTestCardActiveResident,
+              ]}
+              onPress={() => handleQuickTest('RESIDENT')}
+              activeOpacity={0.85}
+            >
+              <View style={styles.seededTestTopRow}>
+                <View style={styles.seededTestIconResident}>
+                  <Users size={16} color="#15803D" />
+                </View>
+                <View style={styles.seededTestMeta}>
+                  <Text style={styles.seededTestName}>
+                    {SEEDED_ACCOUNTS.RESIDENT.name}
+                  </Text>
+                  <Text style={styles.seededTestRoleTextResident}>
+                    Community Resident
+                  </Text>
+                </View>
+                <Zap size={14} color="#15803D" />
+              </View>
+              <Text style={styles.seededTestDetails}>
+                Phone: <Text style={styles.seededTestCode}>{SEEDED_ACCOUNTS.RESIDENT.phone}</Text> • Pass: <Text style={styles.seededTestCode}>{SEEDED_ACCOUNTS.RESIDENT.password}</Text>
+              </Text>
+              <Text style={styles.seededTestJurisdiction}>
+                Village: Rebero Village • Receives Umuganda & health notices
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -453,6 +566,121 @@ const styles = StyleSheet.create({
     color: '#92400E',
     flex: 1,
     lineHeight: 16,
+  },
+  seededTestContainer: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  seededTestHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  seededTestTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0F172A',
+    flex: 1,
+  },
+  seededTestBadge: {
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  seededTestBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#15803D',
+  },
+  seededTestDesc: {
+    fontSize: 11,
+    color: '#64748B',
+    marginBottom: 12,
+    lineHeight: 16,
+  },
+  seededTestCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 10,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  seededTestCardActiveAdmin: {
+    borderColor: '#D97706',
+    backgroundColor: '#FFFDF7',
+  },
+  seededTestCardActiveResident: {
+    borderColor: '#16A34A',
+    backgroundColor: '#F7FEF9',
+  },
+  seededTestTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 6,
+  },
+  seededTestIconAdmin: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FEF3C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  seededTestIconResident: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#DCFCE7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  seededTestMeta: {
+    flex: 1,
+  },
+  seededTestName: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  seededTestRoleTextAdmin: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#B45309',
+    textTransform: 'uppercase',
+  },
+  seededTestRoleTextResident: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#15803D',
+    textTransform: 'uppercase',
+  },
+  seededTestDetails: {
+    fontSize: 11,
+    color: '#475569',
+    marginBottom: 3,
+  },
+  seededTestCode: {
+    fontWeight: '700',
+    color: '#0F172A',
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  },
+  seededTestJurisdiction: {
+    fontSize: 10,
+    color: '#94A3B8',
+    fontStyle: 'italic',
   },
 });
 

@@ -10,6 +10,7 @@ interface AuthContextType {
   hasSeenOnboarding: boolean;
   setHasSeenOnboarding: (val: boolean) => void;
   login: (identifier: string, password?: string) => Promise<{ token: string; user: ResidentUser }>;
+  loginSeeded: (roleType: 'ADMIN' | 'RESIDENT') => { token: string; user: ResidentUser };
   register: (data: MobileRegisterDto) => Promise<any>;
   logout: () => void;
   updateConsent: (consent: boolean) => void;
@@ -52,6 +53,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginSeeded = (roleType: 'ADMIN' | 'RESIDENT') => {
+    const { token, user: seededUser } = authApi.loginSeeded(roleType);
+    setUser(seededUser);
+    return { token, user: seededUser };
+  };
+
   const register = async (data: MobileRegisterDto) => {
     setIsLoading(true);
     try {
@@ -91,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         hasSeenOnboarding,
         setHasSeenOnboarding,
         login,
+        loginSeeded,
         register,
         logout,
         updateConsent,

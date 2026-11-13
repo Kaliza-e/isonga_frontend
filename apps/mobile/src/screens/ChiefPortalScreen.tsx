@@ -110,7 +110,16 @@ export function ChiefPortalScreen({ navigation }: any) {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity
+          onPress={() => {
+            if (navigation?.canGoBack && navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              navigation.navigate('MainTabs');
+            }
+          }}
+          style={styles.backBtn}
+        >
           <ArrowLeft size={20} color={colors.textPrimary} />
         </TouchableOpacity>
         <View style={styles.headerTitleWrap}>
@@ -119,6 +128,14 @@ export function ChiefPortalScreen({ navigation }: any) {
             {user?.name || 'Local Administrator'} • {user?.role?.replace(/_/g, ' ') || 'Leader'}
           </Text>
         </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('MainTabs')}
+          style={styles.residentViewBtn}
+          accessibilityLabel="View Resident App"
+        >
+          <Users size={14} color="#16A34A" />
+          <Text style={styles.residentViewBtnText}>Resident Feed</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={handleSignOut} style={styles.chiefBadge} accessibilityLabel="Sign Out">
           <LogOut size={16} color="#DC2626" />
         </TouchableOpacity>
@@ -310,6 +327,22 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.primaryDark,
     fontWeight: '600',
+  },
+  residentViewBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#DCFCE7',
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+  },
+  residentViewBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#15803D',
   },
   chiefBadge: {
     width: 34,

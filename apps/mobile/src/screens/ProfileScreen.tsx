@@ -12,6 +12,7 @@ import {
 import { colors } from '../theme/colors';
 import { useMobileAuth } from '../context/AuthContext';
 import { useLocation } from '../context/LocationContext';
+import { SEEDED_ACCOUNTS } from '../data/seededData';
 import {
   ArrowLeft,
   Settings,
@@ -23,11 +24,29 @@ import {
   Info,
   ChevronRight,
   ShieldCheck,
+  Users,
+  Sparkles,
+  RefreshCw,
 } from 'lucide-react-native';
 
 export function ProfileScreen({ navigation }: any) {
-  const { user, logout, updateConsent, toggleLanguage } = useMobileAuth();
+  const { user, logout, updateConsent, toggleLanguage, loginSeeded } = useMobileAuth();
   const { currentLocation } = useLocation();
+
+  const isAdmin = user?.role && ['CELL_ADMIN', 'SECTOR_ADMIN', 'DISTRICT_ADMIN', 'SUPER_ADMIN'].includes(user.role);
+
+  const handleSwitchAccount = () => {
+    if (isAdmin) {
+      // Switch to Resident
+      loginSeeded('RESIDENT');
+      Alert.alert('Account Switched', 'Switched to Community Resident (Jean-Luc Mugisha).');
+    } else {
+      // Switch to Administrator
+      loginSeeded('ADMIN');
+      Alert.alert('Account Switched', 'Switched to Local Administrator (Esther Kaliza).');
+      navigation.navigate('ChiefPortal');
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -68,6 +87,45 @@ export function ProfileScreen({ navigation }: any) {
 
           <Text style={styles.userName}>{user?.name || 'Resident User'}</Text>
           <Text style={styles.userPhone}>{user?.phone || 'Verified Resident'}</Text>
+
+          {/* Active Role Badge */}
+          <View style={[styles.activeRoleBadge, isAdmin ? styles.roleBadgeAdmin : styles.roleBadgeResident]}>
+            {isAdmin ? (
+              <>
+                <ShieldCheck size={12} color="#D97706" />
+                <Text style={styles.roleBadgeAdminText}>Authorized Local Administrator</Text>
+              </>
+            ) : (
+              <>
+                <Users size={12} color="#16A34A" />
+                <Text style={styles.roleBadgeResidentText}>Verified Community Resident</Text>
+              </>
+            )}
+          </View>
+
+          {/* Quick Seeded Switcher */}
+          <TouchableOpacity
+            style={styles.switchAccountCard}
+            onPress={handleSwitchAccount}
+            activeOpacity={0.85}
+          >
+            <View style={styles.switchAccountLeft}>
+              <View style={styles.switchIconWrap}>
+                <Sparkles size={14} color="#047857" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.switchAccountTitle}>
+                  {isAdmin ? 'Switch to Resident (Test Mode)' : 'Switch to Administrator (Chief)'}
+                </Text>
+                <Text style={styles.switchAccountSub}>
+                  {isAdmin
+                    ? `Test as ${SEEDED_ACCOUNTS.RESIDENT.name} (Citizen)`
+                    : `Test as ${SEEDED_ACCOUNTS.ADMIN.name} (Broadcasting Leader)`}
+                </Text>
+              </View>
+            </View>
+            <RefreshCw size={15} color="#047857" />
+          </TouchableOpacity>
         </View>
 
         {/* Menu Items */}
@@ -266,6 +324,73 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     marginTop: 2,
+  },
+  activeRoleBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 14,
+    marginTop: 8,
+  },
+  roleBadgeAdmin: {
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  roleBadgeAdminText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#B45309',
+  },
+  roleBadgeResident: {
+    backgroundColor: '#DCFCE7',
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+  },
+  roleBadgeResidentText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#15803D',
+  },
+  switchAccountCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1.5,
+    borderColor: '#BBF7D0',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginTop: 14,
+    width: '100%',
+  },
+  switchAccountLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
+    paddingRight: 8,
+  },
+  switchIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#DCFCE7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  switchAccountTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#166534',
+  },
+  switchAccountSub: {
+    fontSize: 10,
+    color: '#15803D',
+    marginTop: 1,
   },
   menuList: {
     gap: 8,

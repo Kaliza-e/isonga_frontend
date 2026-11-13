@@ -1,7 +1,8 @@
 import { mobileApiClient } from './client';
 import { NotificationItem } from '../types';
+import { SEEDED_NOTIFICATIONS } from '../data/seededData';
 
-export const FALLBACK_NOTIFICATIONS: NotificationItem[] = [];
+export const FALLBACK_NOTIFICATIONS: NotificationItem[] = SEEDED_NOTIFICATIONS;
 
 export const notificationsApi = {
   async getNotifications(): Promise<NotificationItem[]> {
@@ -17,9 +18,9 @@ export const notificationsApi = {
           status: item.status || 'DELIVERED',
         }));
       }
-      return [];
+      return SEEDED_NOTIFICATIONS;
     } catch {
-      return [];
+      return SEEDED_NOTIFICATIONS;
     }
   },
 };

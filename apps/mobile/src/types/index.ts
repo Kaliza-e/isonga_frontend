@@ -53,11 +53,20 @@ export interface NotificationItem {
   category?: AnnouncementCategory;
 }
 
+export type UserRoleType =
+  | 'RESIDENT'
+  | 'CELL_ADMIN'
+  | 'SECTOR_ADMIN'
+  | 'DISTRICT_ADMIN'
+  | 'SUPER_ADMIN';
+
 export interface ResidentUser {
   id: string;
   name: string;
   phone: string;
-  role: 'RESIDENT';
+  email?: string;
+  role: UserRoleType;
+  title?: string;
   primaryAreaId?: string;
   primaryAreaName?: string;
   district?: string;

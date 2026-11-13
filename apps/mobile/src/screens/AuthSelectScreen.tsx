@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { colors } from '../theme/colors';
 import { IsongaLogo } from '../components/Logo';
+import { useMobileAuth } from '../context/AuthContext';
 import {
   Users,
   ShieldCheck,
@@ -16,9 +17,11 @@ import {
   LogIn,
   KeyRound,
   CheckCircle2,
+  Sparkles,
 } from 'lucide-react-native';
 
 export function AuthSelectScreen({ navigation }: any) {
+  const { loginSeeded } = useMobileAuth();
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Brand Header */}
@@ -118,6 +121,47 @@ export function AuthSelectScreen({ navigation }: any) {
           <Text style={styles.adminActionText}>Local Administrator Sign In</Text>
           <ArrowRight size={16} color="#FFFFFF" />
         </TouchableOpacity>
+      </View>
+
+      {/* ═══ QUICK TEST / SEEDED DEMO BAR ═══ */}
+      <View style={styles.demoBar}>
+        <View style={styles.demoBarHeader}>
+          <Sparkles size={14} color="#047857" />
+          <Text style={styles.demoBarTitle}>Testing the App? 1-Tap Seeded Login:</Text>
+        </View>
+        <View style={styles.demoBarRow}>
+          <TouchableOpacity
+            style={styles.demoPillAdmin}
+            onPress={() => {
+              loginSeeded('ADMIN');
+              if (navigation?.replace) {
+                navigation.replace('ChiefPortal');
+              } else {
+                navigation.navigate('ChiefPortal');
+              }
+            }}
+            activeOpacity={0.85}
+          >
+            <ShieldCheck size={13} color="#D97706" />
+            <Text style={styles.demoPillAdminText}>Local Administrator</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoPillResident}
+            onPress={() => {
+              loginSeeded('RESIDENT');
+              if (navigation?.replace) {
+                navigation.replace('MainTabs');
+              } else {
+                navigation.navigate('MainTabs');
+              }
+            }}
+            activeOpacity={0.85}
+          >
+            <Users size={13} color="#16A34A" />
+            <Text style={styles.demoPillResidentText}>Resident</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Legal & Compliance Notice */}
@@ -352,6 +396,70 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     marginLeft: 16,
+  },
+  demoBar: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  demoBarHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 10,
+  },
+  demoBarTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#334155',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  demoBarRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  demoPillAdmin: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  demoPillAdminText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#92400E',
+  },
+  demoPillResident: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#DCFCE7',
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  demoPillResidentText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#166534',
   },
   footerNote: {
     flexDirection: 'row',
