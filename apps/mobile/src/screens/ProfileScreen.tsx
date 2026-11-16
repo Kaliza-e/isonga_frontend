@@ -12,7 +12,6 @@ import {
 import { colors } from '../theme/colors';
 import { useMobileAuth } from '../context/AuthContext';
 import { useLocation } from '../context/LocationContext';
-import { SEEDED_ACCOUNTS } from '../data/seededData';
 import {
   ArrowLeft,
   Settings,
@@ -25,28 +24,13 @@ import {
   ChevronRight,
   ShieldCheck,
   Users,
-  Sparkles,
-  RefreshCw,
 } from 'lucide-react-native';
 
 export function ProfileScreen({ navigation }: any) {
-  const { user, logout, updateConsent, toggleLanguage, loginSeeded } = useMobileAuth();
+  const { user, logout, updateConsent, toggleLanguage } = useMobileAuth();
   const { currentLocation } = useLocation();
 
   const isAdmin = user?.role && ['CELL_ADMIN', 'SECTOR_ADMIN', 'DISTRICT_ADMIN', 'SUPER_ADMIN'].includes(user.role);
-
-  const handleSwitchAccount = () => {
-    if (isAdmin) {
-      // Switch to Resident
-      loginSeeded('RESIDENT');
-      Alert.alert('Account Switched', 'Switched to Community Resident (Jean-Luc Mugisha).');
-    } else {
-      // Switch to Administrator
-      loginSeeded('ADMIN');
-      Alert.alert('Account Switched', 'Switched to Local Administrator (Esther Kaliza).');
-      navigation.navigate('ChiefPortal');
-    }
-  };
 
   const handleLogout = () => {
     logout();
@@ -102,30 +86,6 @@ export function ProfileScreen({ navigation }: any) {
               </>
             )}
           </View>
-
-          {/* Quick Seeded Switcher */}
-          <TouchableOpacity
-            style={styles.switchAccountCard}
-            onPress={handleSwitchAccount}
-            activeOpacity={0.85}
-          >
-            <View style={styles.switchAccountLeft}>
-              <View style={styles.switchIconWrap}>
-                <Sparkles size={14} color="#047857" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.switchAccountTitle}>
-                  {isAdmin ? 'Switch to Resident (Test Mode)' : 'Switch to Administrator (Chief)'}
-                </Text>
-                <Text style={styles.switchAccountSub}>
-                  {isAdmin
-                    ? `Test as ${SEEDED_ACCOUNTS.RESIDENT.name} (Citizen)`
-                    : `Test as ${SEEDED_ACCOUNTS.ADMIN.name} (Broadcasting Leader)`}
-                </Text>
-              </View>
-            </View>
-            <RefreshCw size={15} color="#047857" />
-          </TouchableOpacity>
         </View>
 
         {/* Menu Items */}

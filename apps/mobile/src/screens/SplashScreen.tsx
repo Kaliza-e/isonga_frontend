@@ -16,8 +16,6 @@ import {
   ShieldCheck,
   Radio,
   CheckCircle2,
-  Sparkles,
-  ArrowRightLeft,
 } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -31,9 +29,8 @@ export function SplashScreen({
 }) {
   const { user, isAuthenticated, hasSeenOnboarding } = useMobileAuth();
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.92)).current;
+  const scaleAnim = useRef(new Animated.Value(0.94)).current;
   const pulseAnim = useRef(new Animated.Value(0.4)).current;
-  const slideAnim = useRef(new Animated.Value(20)).current;
 
   const determineTarget = () => {
     if (isAuthenticated && user) {
@@ -56,18 +53,13 @@ export function SplashScreen({
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 900,
+        duration: 700,
         useNativeDriver: Platform.OS !== 'web',
       }),
       Animated.spring(scaleAnim, {
         toValue: 1,
         friction: 6,
         tension: 40,
-        useNativeDriver: Platform.OS !== 'web',
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 800,
         useNativeDriver: Platform.OS !== 'web',
       }),
     ]).start();
@@ -77,20 +69,21 @@ export function SplashScreen({
       Animated.sequence([
         Animated.timing(pulseAnim, {
           toValue: 1,
-          duration: 700,
+          duration: 650,
           useNativeDriver: Platform.OS !== 'web',
         }),
         Animated.timing(pulseAnim, {
           toValue: 0.35,
-          duration: 700,
+          duration: 650,
           useNativeDriver: Platform.OS !== 'web',
         }),
       ])
     ).start();
 
+    // Auto-proceed after brief display, or instantly on click/tap
     const timer = setTimeout(() => {
       handleComplete();
-    }, 2400);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -102,12 +95,7 @@ export function SplashScreen({
       style={styles.container}
     >
       {/* Top Civic Badge */}
-      <Animated.View
-        style={[
-          styles.topHeader,
-          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
-        ]}
-      >
+      <Animated.View style={[styles.topHeader, { opacity: fadeAnim }]}>
         <View style={styles.govBadge}>
           <View style={styles.liveGreenDot} />
           <Text style={styles.govBadgeText}>Republic of Rwanda • Civic Network</Text>
@@ -130,7 +118,7 @@ export function SplashScreen({
             ]}
           />
           <View style={styles.logoBadge}>
-            <IsongaLogo size={90} />
+            <IsongaLogo size={88} />
           </View>
         </View>
 
@@ -218,11 +206,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 20,
-    shadowColor: '#059669',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...Platform.select({
+      web: {},
+      default: {
+        shadowColor: '#059669',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 6,
+        elevation: 2,
+      },
+    }),
   },
   liveGreenDot: {
     width: 8,
@@ -264,13 +257,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#059669',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 6,
     borderWidth: 2,
     borderColor: '#A7F3D0',
+    ...Platform.select({
+      web: {},
+      default: {
+        shadowColor: '#059669',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.15,
+        shadowRadius: 16,
+        elevation: 6,
+      },
+    }),
   },
   title: {
     fontSize: 32,
@@ -307,11 +305,16 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     width: '100%',
     maxWidth: 320,
-    shadowColor: '#065F46',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    ...Platform.select({
+      web: {},
+      default: {
+        shadowColor: '#065F46',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 3,
+      },
+    }),
   },
   bridgeNode: {
     alignItems: 'center',

@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { colors } from '../theme/colors';
 import { IsongaLogo } from '../components/Logo';
-import { useMobileAuth } from '../context/AuthContext';
 import {
   Users,
   ShieldCheck,
@@ -17,13 +16,10 @@ import {
   UserPlus,
   LogIn,
   CheckCircle2,
-  Sparkles,
   Lock,
 } from 'lucide-react-native';
 
 export function AuthSelectScreen({ navigation }: any) {
-  const { loginSeeded } = useMobileAuth();
-
   return (
     <ScrollView
       style={styles.container}
@@ -128,49 +124,6 @@ export function AuthSelectScreen({ navigation }: any) {
               Verified against assigned village &amp; cell administrative jurisdiction
             </Text>
           </View>
-        </View>
-      </View>
-
-      {/* ═══════════════════════════════════════════════════ */}
-      {/* QUICK 1-TAP DEMO SELECTOR (FOR TESTING)             */}
-      {/* ═══════════════════════════════════════════════════ */}
-      <View style={styles.demoBox}>
-        <View style={styles.demoHeader}>
-          <Sparkles size={14} color="#047857" />
-          <Text style={styles.demoTitle}>Testing Features? 1-Tap Seeded Login:</Text>
-        </View>
-        <View style={styles.demoRow}>
-          <TouchableOpacity
-            style={styles.demoBtnAdmin}
-            onPress={() => {
-              loginSeeded('ADMIN');
-              if (navigation?.replace) {
-                navigation.replace('ChiefPortal');
-              } else {
-                navigation.navigate('ChiefPortal');
-              }
-            }}
-            activeOpacity={0.85}
-          >
-            <ShieldCheck size={14} color="#B45309" />
-            <Text style={styles.demoBtnAdminText}>Chief / Admin</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.demoBtnResident}
-            onPress={() => {
-              loginSeeded('RESIDENT');
-              if (navigation?.replace) {
-                navigation.replace('MainTabs');
-              } else {
-                navigation.navigate('MainTabs');
-              }
-            }}
-            activeOpacity={0.85}
-          >
-            <Users size={14} color="#15803D" />
-            <Text style={styles.demoBtnResidentText}>Resident</Text>
-          </TouchableOpacity>
         </View>
       </View>
 

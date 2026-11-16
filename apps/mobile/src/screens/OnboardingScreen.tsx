@@ -6,28 +6,27 @@ import {
   TouchableOpacity,
   Dimensions,
   FlatList,
-  Animated,
   Image,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { colors } from '../theme/colors';
 import { useMobileAuth } from '../context/AuthContext';
 import {
   Users,
-  ShieldCheck,
   Calendar,
   HeartHandshake,
   Radio,
-  Lock,
   ArrowRight,
+  ArrowLeft,
   CheckCircle2,
-  Megaphone,
 } from 'lucide-react-native';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 interface OnboardingSlide {
   id: string;
+  stepNumber: string;
   badge: string;
   title: string;
   kinyarwandaSubtitle: string;
@@ -42,55 +41,59 @@ interface OnboardingSlide {
 const SLIDES: OnboardingSlide[] = [
   {
     id: '1',
-    badge: 'Civic Partnership • Rwanda',
-    title: 'Connect Directly With Your Local Leaders',
-    kinyarwandaSubtitle: "Guhuza Abaturage n'Ubuyobozi bw'Ibanze",
+    stepNumber: '1',
+    badge: "Civic Partnership • Ubuyobozi bw'Ibanze",
+    title: 'Direct Connection With Your Local Leaders',
+    kinyarwandaSubtitle: "Guhuza Abaturage n'Umukuru w'Umudugudu",
     description:
-      "Directly bridge the gap between your household and local governance. Receive verified directives, security advisories, and neighborhood decisions straight from your Village Chief (Umukuru w'Umudugudu) and Cell executives.",
-    imageUri: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=800&q=80',
+      "Directly bridge the gap between your household and local governance. Receive verified directives, community notices, and official security advisories straight from your Village Chief (Umukuru w'Umudugudu) and Akagari council.",
+    imageUri: 'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?w=800&q=80',
     primaryIcon: Users,
     iconBg: '#DCFCE7',
     iconColor: '#15803D',
-    highlights: ["Umukuru w'Umudugudu", 'Akagari Executive', 'Zero Rumors, 100% Verified'],
+    highlights: ["Umukuru w'Umudugudu", 'Akagari Executive Council', 'Verified Official Directives'],
   },
   {
     id: '2',
-    badge: 'Community Action • Umuganda',
+    stepNumber: '2',
+    badge: 'Community Action • Umuganda Rusange',
     title: 'Stay Synced on Umuganda & Village Assemblies',
     kinyarwandaSubtitle: "Inama z'Abaturage n'Ibikorwa Rusange",
     description:
-      'Never miss a monthly Umuganda gathering or mandatory village assembly. Get exact assembly times, designated drainage or road sections, required tools, and post-meeting community resolutions on your phone.',
-    imageUri: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=800&q=80',
+      'Never miss a monthly Umuganda gathering or mandatory village assembly. Get exact assembly locations, designated road and drainage clearing zones, required equipment, and post-meeting community resolutions.',
+    imageUri: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
     primaryIcon: Calendar,
     iconBg: '#FEF3C7',
     iconColor: '#D97706',
-    highlights: ['Monthly Umuganda Dates', 'Required Tool Checklists', 'Security Patrol (Irondo) Updates'],
+    highlights: ['Monthly Umuganda Dates', 'Work Site Coordinates', 'Community Resolutions'],
   },
   {
     id: '3',
-    badge: 'Essential Services • Health & Utilities',
-    title: 'Vital Public Health & Utility Alerts',
-    kinyarwandaSubtitle: 'Ubuzima bwa Rubanda na Serivisi za Leta',
+    stepNumber: '3',
+    badge: 'Public Health & Utilities • WASAC Alerts',
+    title: 'Vital Health Clinics & Utility Advisories',
+    kinyarwandaSubtitle: "Ubuzima bwa Rubanda na Gahunda za WASAC",
     description:
-      "Get advance warnings before scheduled WASAC water network maintenance in your sector, childhood immunization clinics with community health workers (Abajyanama b'Ubuzima), and emergency weather advisories.",
-    imageUri: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=800&q=80',
+      "Receive timely advance notices prior to scheduled WASAC water network maintenance in your sector, routine immunization clinics with community health workers (Abajyanama b'Ubuzima), and seasonal weather updates.",
+    imageUri: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800&q=80',
     primaryIcon: HeartHandshake,
     iconBg: '#E0F2FE',
     iconColor: '#0284C7',
-    highlights: ['Free Health Screenings', 'WASAC Water Cut Alerts', 'Meteo Weather Advisories'],
+    highlights: ['WASAC Water Maintenance', "Abajyanama b'Ubuzima", 'Urgent Health Screenings'],
   },
   {
     id: '4',
-    badge: 'Nationwide Reach • Law N° 058/2021',
-    title: 'Inclusive SMS & App Alerts For Every Citizen',
+    stepNumber: '4',
+    badge: 'Civic Inclusion • Law N° 058/2021',
+    title: 'Inclusive SMS Broadcasts & Data Privacy',
     kinyarwandaSubtitle: "Ubutumwa bwa SMS n'Umutekano w'Amakuru",
     description:
-      'Engineered for all Rwandan citizens—whether using smartphone mobile data or receiving instant SMS on basic mobile phones. Your personal identity is strictly protected under Rwandan Data Protection Law N° 058/2021.',
-    imageUri: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
+      'Engineered for every resident across Rwanda—accessible via smartphone mobile application or instant SMS notifications on basic feature phones. Your personal privacy is strictly safeguarded under Rwandan Law N° 058/2021.',
+    imageUri: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800&q=80',
     primaryIcon: Radio,
     iconBg: '#DCFCE7',
     iconColor: '#16A34A',
-    highlights: ['Instant SMS Delivery', 'Masked Phone Privacy', 'Zero Commercial Spam'],
+    highlights: ['Direct Phone SMS', 'Masked Number Privacy', 'Zero Commercial Spam'],
   },
 ];
 
@@ -98,60 +101,77 @@ export function OnboardingScreen({ navigation }: any) {
   const { setHasSeenOnboarding } = useMobileAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
-  const scrollX = useRef(new Animated.Value(0)).current;
 
   const handleFinishOnboarding = () => {
     setHasSeenOnboarding(true);
     if (navigation?.replace) {
       navigation.replace('AuthSelect');
-    } else {
+    } else if (navigation?.navigate) {
       navigation.navigate('AuthSelect');
     }
   };
 
   const handleNext = () => {
     if (currentIndex < SLIDES.length - 1) {
+      const nextIndex = currentIndex + 1;
       flatListRef.current?.scrollToIndex({
-        index: currentIndex + 1,
+        index: nextIndex,
         animated: true,
       });
-      setCurrentIndex(currentIndex + 1);
+      setCurrentIndex(nextIndex);
     } else {
       handleFinishOnboarding();
     }
   };
 
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      const prevIndex = currentIndex - 1;
+      flatListRef.current?.scrollToIndex({
+        index: prevIndex,
+        animated: true,
+      });
+      setCurrentIndex(prevIndex);
+    }
+  };
+
+  const goToSlide = (idx: number) => {
+    flatListRef.current?.scrollToIndex({
+      index: idx,
+      animated: true,
+    });
+    setCurrentIndex(idx);
+  };
+
   const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
-    if (viewableItems && viewableItems.length > 0) {
-      setCurrentIndex(viewableItems[0].index || 0);
+    if (viewableItems && viewableItems.length > 0 && typeof viewableItems[0].index === 'number') {
+      setCurrentIndex(viewableItems[0].index);
     }
   }).current;
 
   return (
     <View style={styles.container}>
-      {/* Top Header: Civic Node Indicator & Skip Button */}
+      {/* Top Header */}
       <View style={styles.topBar}>
         <View style={styles.govTag}>
           <View style={styles.govDot} />
-          <Text style={styles.govTagText}>Gov-RW Civic Node</Text>
+          <Text style={styles.govTagText}>Gov-RW Civic Network</Text>
         </View>
 
         <View style={styles.topRightControls}>
           <View style={styles.stepCounterPill}>
             <Text style={styles.stepCounterText}>
-              {currentIndex + 1} of {SLIDES.length}
+              Slide {currentIndex + 1} of {SLIDES.length}
             </Text>
           </View>
 
-          {currentIndex < SLIDES.length - 1 && (
-            <TouchableOpacity
-              onPress={handleFinishOnboarding}
-              style={styles.skipButton}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Text style={styles.skipText}>Skip</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            onPress={handleFinishOnboarding}
+            style={styles.skipButton}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Text style={styles.skipText}>Skip</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -164,12 +184,13 @@ export function OnboardingScreen({ navigation }: any) {
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         bounces={false}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          { useNativeDriver: false }
-        )}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+        getItemLayout={(_, index) => ({
+          length: width,
+          offset: width * index,
+          index,
+        })}
         renderItem={({ item }) => {
           const Icon = item.primaryIcon;
           return (
@@ -178,7 +199,7 @@ export function OnboardingScreen({ navigation }: any) {
               contentContainerStyle={styles.slideScrollContent}
               showsVerticalScrollIndicator={false}
             >
-              {/* Real Authentic Photography Card with Floating Icon Badge */}
+              {/* Authentic Photography Card Featuring Real Communities */}
               <View style={styles.imageCardContainer}>
                 <Image
                   source={{ uri: item.imageUri }}
@@ -187,12 +208,12 @@ export function OnboardingScreen({ navigation }: any) {
                 />
                 <View style={styles.imageGradientOverlay} />
 
-                {/* Floating Real Lucide Icon Badge */}
+                {/* Floating Icon Badge */}
                 <View style={[styles.floatingIconBadge, { backgroundColor: item.iconBg }]}>
                   <Icon size={24} color={item.iconColor} strokeWidth={2.4} />
                 </View>
 
-                {/* Civic Category Pill on Image */}
+                {/* Civic Category Pill */}
                 <View style={styles.floatingCategoryPill}>
                   <Text style={styles.floatingCategoryText}>{item.badge}</Text>
                 </View>
@@ -200,16 +221,11 @@ export function OnboardingScreen({ navigation }: any) {
 
               {/* Text Content */}
               <View style={styles.textContent}>
-                {/* Headline */}
                 <Text style={styles.title}>{item.title}</Text>
-                
-                {/* Kinyarwanda Subtitle */}
                 <Text style={styles.kinyarwandaSubtitle}>{item.kinyarwandaSubtitle}</Text>
-
-                {/* Description */}
                 <Text style={styles.description}>{item.description}</Text>
 
-                {/* Highlights Pills */}
+                {/* Highlights */}
                 <View style={styles.highlightsContainer}>
                   {item.highlights.map((h: string, i: number) => (
                     <View key={i} style={styles.highlightPill}>
@@ -226,35 +242,50 @@ export function OnboardingScreen({ navigation }: any) {
 
       {/* Bottom Navigation & Controls */}
       <View style={styles.bottomSection}>
-        {/* Pagination Dots */}
+        {/* Pagination Dots (Interactive) */}
         <View style={styles.paginationContainer}>
           {SLIDES.map((_, index) => {
             const isActive = currentIndex === index;
             return (
-              <View
+              <TouchableOpacity
                 key={index}
+                onPress={() => goToSlide(index)}
                 style={[
                   styles.dot,
                   isActive ? styles.dotActive : styles.dotInactive,
                 ]}
+                hitSlop={{ top: 10, bottom: 10, left: 6, right: 6 }}
               />
             );
           })}
         </View>
 
-        {/* Action Button: Next or Get Started */}
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={handleNext}
-          activeOpacity={0.88}
-        >
-          <Text style={styles.primaryButtonText}>
-            {currentIndex === SLIDES.length - 1
-              ? 'Get Started as Resident or Leader'
-              : 'Continue'}
-          </Text>
-          <ArrowRight size={18} color="#FFFFFF" />
-        </TouchableOpacity>
+        {/* Buttons Row: Back (if not first) + Continue/Get Started */}
+        <View style={styles.buttonRow}>
+          {currentIndex > 0 && (
+            <TouchableOpacity
+              style={styles.prevButton}
+              onPress={handlePrev}
+              activeOpacity={0.85}
+            >
+              <ArrowLeft size={18} color="#475569" />
+              <Text style={styles.prevButtonText}>Back</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            style={[styles.primaryButton, currentIndex === 0 && { flex: 1 }]}
+            onPress={handleNext}
+            activeOpacity={0.88}
+          >
+            <Text style={styles.primaryButtonText}>
+              {currentIndex === SLIDES.length - 1
+                ? 'Get Started • Injira'
+                : 'Continue'}
+            </Text>
+            <ArrowRight size={18} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -266,12 +297,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   topBar: {
-    paddingTop: 50,
+    paddingTop: Platform.OS === 'web' ? 20 : 50,
     paddingHorizontal: 22,
     paddingBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
   },
   govTag: {
     flexDirection: 'row',
@@ -294,6 +328,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     color: '#087A3E',
+    letterSpacing: 0.2,
   },
   topRightControls: {
     flexDirection: 'row',
@@ -326,21 +361,18 @@ const styles = StyleSheet.create({
   },
   slideScrollContent: {
     paddingHorizontal: 22,
-    paddingTop: 6,
+    paddingTop: 14,
     paddingBottom: 20,
   },
   imageCardContainer: {
     width: '100%',
-    height: height * 0.28,
+    height: 230,
     borderRadius: 22,
     overflow: 'hidden',
     position: 'relative',
     backgroundColor: '#E2E8F0',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   slideImage: {
     width: '100%',
@@ -348,7 +380,7 @@ const styles = StyleSheet.create({
   },
   imageGradientOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 35, 25, 0.22)',
+    backgroundColor: 'rgba(15, 35, 25, 0.25)',
   },
   floatingIconBadge: {
     position: 'absolute',
@@ -359,17 +391,14 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
   floatingCategoryPill: {
     position: 'absolute',
     bottom: 14,
     left: 14,
-    backgroundColor: 'rgba(15, 23, 42, 0.78)',
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 14,
@@ -429,8 +458,8 @@ const styles = StyleSheet.create({
   },
   bottomSection: {
     paddingHorizontal: 22,
-    paddingBottom: 30,
-    paddingTop: 10,
+    paddingBottom: Platform.OS === 'web' ? 24 : 32,
+    paddingTop: 12,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#F1F5F9',
@@ -454,7 +483,30 @@ const styles = StyleSheet.create({
     width: 6,
     backgroundColor: '#CBD5E1',
   },
+  buttonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  prevButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 16,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  prevButtonText: {
+    color: '#475569',
+    fontSize: 14,
+    fontWeight: '700',
+  },
   primaryButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -462,11 +514,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#16A34A',
     paddingVertical: 14,
     borderRadius: 16,
-    shadowColor: '#16A34A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
   },
   primaryButtonText: {
     color: '#FFFFFF',

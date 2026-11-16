@@ -12,6 +12,8 @@
   },
   "devDependencies": {
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "rwanda": "^3.0.2"
   }
 }
-

@@ -1,14 +1,11 @@
 import { mobileApiClient } from './client';
 import { NotificationItem } from '../types';
-import { SEEDED_NOTIFICATIONS } from '../data/seededData';
-
-export const FALLBACK_NOTIFICATIONS: NotificationItem[] = SEEDED_NOTIFICATIONS;
 
 export const notificationsApi = {
   async getNotifications(): Promise<NotificationItem[]> {
     try {
       const res = await mobileApiClient<any>('/notifications');
-      if (Array.isArray(res) && res.length > 0) {
+      if (Array.isArray(res)) {
         return res.map((item: any) => ({
           id: item.id,
           title: item.title || item.announcement?.title || 'Civic Announcement',
@@ -18,10 +15,9 @@ export const notificationsApi = {
           status: item.status || 'DELIVERED',
         }));
       }
-      return SEEDED_NOTIFICATIONS;
+      return [];
     } catch {
-      return SEEDED_NOTIFICATIONS;
+      return [];
     }
   },
 };
-

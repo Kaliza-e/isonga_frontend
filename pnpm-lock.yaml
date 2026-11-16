@@ -229,6 +229,9 @@ importers:
       react-native-web:
         specifier: ~0.19.13
         version: 0.19.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      rwanda:
+        specifier: ^3.0.2
+        version: 3.0.2
     devDependencies:
       '@babel/core':
         specifier: ^7.20.0
@@ -313,6 +316,10 @@ importers:
   packages/config: {}
 
   packages/shared:
+    dependencies:
+      rwanda:
+        specifier: ^3.0.2
+        version: 3.0.2
     devDependencies:
       typescript:
         specifier: ^5.3.3
@@ -4851,6 +4858,10 @@ packages:
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
+
+  rwanda@3.0.2:
+    resolution: {integrity: sha512-cSShh2YZ3q6FCPEc9WvGUmMRSb5dwYaQtTCIZgaCyWAqUtJRdwjH5a/hzre7vaatVzkp608ZphQhMrj14epmdQ==}
+    engines: {node: 20.19.0}
 
   safe-array-concat@1.1.4:
     resolution: {integrity: sha512-wtZlHyOje6OZTGqAoaDKxFkgRtkF9CnHAVnCHKfuj200wAgL+bSJhdsCD2l0Qx/2ekEXjPWcyKkfGb5CPboslg==}
@@ -10827,6 +10838,8 @@ snapshots:
   run-parallel@1.2.0:
     dependencies:
       queue-microtask: 1.2.3
+
+  rwanda@3.0.2: {}
 
   safe-array-concat@1.1.4:
     dependencies:

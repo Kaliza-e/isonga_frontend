@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import * as Location from 'expo-location';
+import { Provinces, Districts, Sectors, Cells, Villages } from 'rwanda';
 import { colors } from '../theme/colors';
 import { useLocation } from '../context/LocationContext';
 import { residentsApi } from '../api/residents';
@@ -23,26 +24,78 @@ import {
   ChevronUp,
   Navigation,
   Users,
+  Check,
 } from 'lucide-react-native';
 
 export function LocationSelectorScreen({ navigation }: any) {
   const { currentLocation, setLocation } = useLocation();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedProvince, setExpandedProvince] = useState(true);
-  const [expandedDistrict, setExpandedDistrict] = useState(true);
-  const [expandedSector, setExpandedSector] = useState(true);
-  const [selectedCell, setSelectedCell] = useState(currentLocation.cell || 'Kimironko Cell');
+  const [selectedProvince, setSelectedProvince] = useState<string>('Kigali');
+  const [selectedDistrict, setSelectedDistrict] = useState<string>('Gasabo');
+  const [selectedSector, setSelectedSector] = useState<string>('Kimironko');
+  const [selectedCell, setSelectedCell] = useState<string>(currentLocation.cell || 'Kibagabaga');
+  const [selectedVillage, setSelectedVillage] = useState<string>(currentLocation.village || 'Ramiro');
+
+  const [expandedSection, setExpandedSection] = useState<'province' | 'district' | 'sector' | 'cell' | 'village'>('cell');
   const [isLocating, setIsLocating] = useState(false);
   const [gpsMatch, setGpsMatch] = useState<string | null>(null);
+
+  // Provinces list from official Rwanda geodata
+  const allProvinces = useMemo(() => {
+    try {
+      return Provinces() || ['Kigali', 'East', 'North', 'South', 'West'];
+    } catch {
+      return ['Kigali', 'East', 'North', 'South', 'West'];
+    }
+  }, []);
+
+  // Districts in selected province
+  const districtsInProvince = useMemo(() => {
+    try {
+      return Districts({ provinces: selectedProvince as any }) || [];
+    } catch {
+      return [];
+    }
+  }, [selectedProvince]);
+
+  // Sectors in selected district
+  const sectorsInDistrict = useMemo(() => {
+    try {
+      return Sectors({ province: selectedProvince as any, district: selectedDistrict as any }) || [];
+    } catch {
+      return [];
+    }
+  }, [selectedProvince, selectedDistrict]);
+
+  // Cells in selected sector
+  const cellsInSector = useMemo(() => {
+    try {
+      return Cells({ province: selectedProvince as any, district: selectedDistrict as any, sector: selectedSector as any }) || [];
+    } catch {
+      return [];
+    }
+  }, [selectedProvince, selectedDistrict, selectedSector]);
+
+  // Villages in selected cell
+  const villagesInCell = useMemo(() => {
+    try {
+      return Villages({
+        province: selectedProvince as any,
+        district: selectedDistrict as any,
+        sector: selectedSector as any,
+        cell: selectedCell as any,
+      }) || [];
+    } catch {
+      return [];
+    }
+  }, [selectedProvince, selectedDistrict, selectedSector, selectedCell]);
 
   const handleDetectGPS = async () => {
     setIsLocating(true);
     setGpsMatch(null);
     try {
-      // 1. Request real device geolocation permissions
       const { status } = await Location.requestForegroundPermissionsAsync();
-      
       let lat = -1.936;
       let lng = 30.13;
 
@@ -52,65 +105,54 @@ export function LocationSelectorScreen({ navigation }: any) {
         });
         lat = position.coords.latitude;
         lng = position.coords.longitude;
-      } else {
-        Alert.alert(
-          'Location Permission',
-          'Permission not granted. Detecting nearest administrative area using default Rwanda location.'
-        );
       }
 
-      // 2. Query Rwanda administrative hierarchy centroid locator with real GPS coords
+      // Query real administrative centroid lookup
       const res = await locateByCoordinates(lat, lng);
       if (res && res.area) {
-        setSelectedCell(res.area.name);
-        const residentCount = typeof res.totalResidents === 'number' ? res.totalResidents : 0;
-        setGpsMatch(
-          `${res.area.name} (${res.distanceKm ? res.distanceKm + 'km away, ' : ''}${residentCount} registered residents)`
-        );
+        const areaName = res.area.name;
+        setGpsMatch(`${areaName} (${res.distanceKm ? res.distanceKm + 'km' : 'Identified GPS'})`);
 
         if (res.ancestors && Array.isArray(res.ancestors)) {
-          const provinceName = res.ancestors.find((a: any) => a.level === 'PROVINCE')?.name || currentLocation.province;
-          const districtName = res.ancestors.find((a: any) => a.level === 'DISTRICT')?.name || currentLocation.district;
-          const sectorName = res.ancestors.find((a: any) => a.level === 'SECTOR')?.name || currentLocation.sector;
+          const prov = res.ancestors.find((a: any) => a.level === 'PROVINCE')?.name || 'Kigali';
+          const dist = res.ancestors.find((a: any) => a.level === 'DISTRICT')?.name || 'Gasabo';
+          const sect = res.ancestors.find((a: any) => a.level === 'SECTOR')?.name || 'Kimironko';
 
-          setLocation({
-            province: provinceName,
-            district: districtName,
-            sector: sectorName,
-            cell: res.area.name,
-            displayText: districtName.replace(' District', ''),
-          });
+          setSelectedProvince(prov.replace(' City', '').replace(' Province', ''));
+          setSelectedDistrict(dist.replace(' District', ''));
+          setSelectedSector(sect.replace(' Sector', ''));
+          setSelectedCell(areaName.replace(' Cell', ''));
         }
       }
     } catch (err: any) {
-      console.warn('Geolocation lookup notice:', err?.message || err);
-      Alert.alert(
-        'GPS Detection',
-        'Could not detect precise satellite coordinates. You can select your village or cell manually below.'
-      );
+      console.warn('GPS detection notice:', err?.message || err);
     } finally {
       setIsLocating(false);
     }
   };
 
   const handleConfirm = async () => {
+    const provinceDisplay = selectedProvince.includes('Kigali') ? 'Kigali City' : `${selectedProvince} Province`;
+    const districtDisplay = `${selectedDistrict} District`;
+    const sectorDisplay = `${selectedSector} Sector`;
+    const cellDisplay = `${selectedCell} Cell`;
+    const villageDisplay = `${selectedVillage} Village`;
+
     try {
-      await residentsApi.updateLocation(selectedCell);
-    } catch {
-      // offline/local fallback
-    }
+      await residentsApi.updateLocation(cellDisplay);
+    } catch {}
 
     setLocation({
-      province: 'Kigali City',
-      district: 'Gasabo District',
-      sector: 'Kimironko Sector',
-      cell: selectedCell,
-      displayText: 'Gasabo',
+      province: provinceDisplay,
+      district: districtDisplay,
+      sector: sectorDisplay,
+      cell: cellDisplay,
+      village: villageDisplay,
+      displayText: selectedDistrict,
     });
+
     navigation.goBack();
   };
-
-  const cells = ['Kimironko Cell', 'Gatsata Cell', 'Ndera Cell', 'Kibagabaga Cell'];
 
   return (
     <View style={styles.container}>
@@ -121,7 +163,7 @@ export function LocationSelectorScreen({ navigation }: any) {
         </TouchableOpacity>
         <View style={styles.headerTitleWrap}>
           <Text style={styles.headerTitle}>Select Your Location</Text>
-          <Text style={styles.headerSubtitle}>Choose your administrative area</Text>
+          <Text style={styles.headerSubtitle}>Rwanda Administrative Hierarchy (NISR)</Text>
         </View>
       </View>
 
@@ -130,6 +172,7 @@ export function LocationSelectorScreen({ navigation }: any) {
         style={styles.gpsButton}
         onPress={handleDetectGPS}
         disabled={isLocating}
+        activeOpacity={0.85}
       >
         {isLocating ? (
           <ActivityIndicator size="small" color={colors.primary} />
@@ -144,9 +187,17 @@ export function LocationSelectorScreen({ navigation }: any) {
       {gpsMatch && (
         <View style={styles.gpsBanner}>
           <Users size={14} color={colors.primaryDark} />
-          <Text style={styles.gpsBannerText}>Matched: {gpsMatch}</Text>
+          <Text style={styles.gpsBannerText}>GPS Match: {gpsMatch}</Text>
         </View>
       )}
+
+      {/* Current Selection Pill Row */}
+      <View style={styles.selectionSummary}>
+        <Text style={styles.summaryLabel}>Selected Area:</Text>
+        <Text style={styles.summaryValue}>
+          {selectedDistrict} &gt; {selectedSector} &gt; {selectedCell} &gt; {selectedVillage}
+        </Text>
+      </View>
 
       {/* Search Input */}
       <View style={styles.searchWrapper}>
@@ -154,128 +205,196 @@ export function LocationSelectorScreen({ navigation }: any) {
         <TextInput
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Search area..."
+          placeholder="Filter by cell or village name..."
           placeholderTextColor={colors.textMuted}
           style={styles.searchInput}
         />
       </View>
 
-      {/* Hierarchy Tree */}
-      <ScrollView contentContainerStyle={styles.treeContent}>
-        {/* Level 1: Kigali City */}
+      {/* Hierarchy Selector ScrollView */}
+      <ScrollView contentContainerStyle={styles.treeContent} showsVerticalScrollIndicator={false}>
+        {/* Level 1: Province */}
         <TouchableOpacity
-          style={styles.treeItem}
-          onPress={() => setExpandedProvince(!expandedProvince)}
+          style={styles.treeHeader}
+          onPress={() => setExpandedSection(expandedSection === 'province' ? 'district' : 'province')}
         >
-          <View style={styles.treeItemLeft}>
+          <View style={styles.treeHeaderLeft}>
             <MapPin size={16} color={colors.primary} />
-            <Text style={styles.treeItemText}>Kigali City</Text>
+            <Text style={styles.treeHeaderText}>Province: {selectedProvince}</Text>
           </View>
-          {expandedProvince ? (
-            <ChevronDown size={18} color={colors.textSecondary} />
-          ) : (
-            <ChevronRight size={18} color={colors.textSecondary} />
-          )}
+          {expandedSection === 'province' ? <ChevronUp size={18} color="#64746C" /> : <ChevronDown size={18} color="#64746C" />}
         </TouchableOpacity>
 
-        {expandedProvince && (
-          <View style={styles.indentBlock}>
-            {/* Level 2: Gasabo District */}
-            <TouchableOpacity
-              style={styles.treeItem}
-              onPress={() => setExpandedDistrict(!expandedDistrict)}
-            >
-              <View style={styles.treeItemLeft}>
-                <MapPin size={16} color={colors.primary} />
-                <Text style={styles.treeItemText}>Gasabo District</Text>
-              </View>
-              {expandedDistrict ? (
-                <ChevronUp size={18} color={colors.textSecondary} />
-              ) : (
-                <ChevronDown size={18} color={colors.textSecondary} />
-              )}
-            </TouchableOpacity>
+        {expandedSection === 'province' && (
+          <View style={styles.chipsRow}>
+            {allProvinces.map((prov: string) => (
+              <TouchableOpacity
+                key={prov}
+                style={[styles.chip, selectedProvince === prov && styles.chipActive]}
+                onPress={() => {
+                  setSelectedProvince(prov);
+                  const firstDist = Districts({ provinces: prov as any })?.[0] || '';
+                  setSelectedDistrict(firstDist);
+                  setExpandedSection('district');
+                }}
+              >
+                <Text style={[styles.chipText, selectedProvince === prov && styles.chipTextActive]}>
+                  {prov}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
-            {expandedDistrict && (
-              <View style={styles.indentBlock}>
-                {/* Level 3: Kimironko Sector */}
-                <TouchableOpacity
-                  style={styles.treeItem}
-                  onPress={() => setExpandedSector(!expandedSector)}
-                >
-                  <View style={styles.treeItemLeft}>
-                    <MapPin size={16} color={colors.primary} />
-                    <Text style={styles.treeItemText}>Kimironko Sector</Text>
-                  </View>
-                  {expandedSector ? (
-                    <ChevronUp size={18} color={colors.textSecondary} />
-                  ) : (
-                    <ChevronDown size={18} color={colors.textSecondary} />
-                  )}
-                </TouchableOpacity>
+        {/* Level 2: District */}
+        <TouchableOpacity
+          style={styles.treeHeader}
+          onPress={() => setExpandedSection(expandedSection === 'district' ? 'sector' : 'district')}
+        >
+          <View style={styles.treeHeaderLeft}>
+            <MapPin size={16} color={colors.primary} />
+            <Text style={styles.treeHeaderText}>District: {selectedDistrict}</Text>
+          </View>
+          {expandedSection === 'district' ? <ChevronUp size={18} color="#64746C" /> : <ChevronDown size={18} color="#64746C" />}
+        </TouchableOpacity>
 
-                {expandedSector && (
-                  <View style={styles.indentBlock}>
-                    {/* Level 4: Cells (with Radio Selectors) */}
-                    {cells.map((c) => {
-                      const isSelected = selectedCell === c;
-                      return (
-                        <TouchableOpacity
-                          key={c}
-                          style={[styles.cellRow, isSelected && styles.cellRowSelected]}
-                          onPress={() => setSelectedCell(c)}
-                        >
-                          <View style={styles.treeItemLeft}>
-                            <MapPin
-                              size={15}
-                              color={isSelected ? colors.primary : colors.textSecondary}
-                            />
-                            <Text
-                              style={[
-                                styles.cellText,
-                                isSelected && styles.cellTextSelected,
-                              ]}
-                            >
-                              {c}
-                            </Text>
-                          </View>
+        {expandedSection === 'district' && (
+          <View style={styles.chipsRow}>
+            {districtsInProvince.map((dist: string) => (
+              <TouchableOpacity
+                key={dist}
+                style={[styles.chip, selectedDistrict === dist && styles.chipActive]}
+                onPress={() => {
+                  setSelectedDistrict(dist);
+                  const firstSect = Sectors({ province: selectedProvince as any, district: dist as any })?.[0] || '';
+                  setSelectedSector(firstSect);
+                  setExpandedSection('sector');
+                }}
+              >
+                <Text style={[styles.chipText, selectedDistrict === dist && styles.chipTextActive]}>
+                  {dist}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
-                          {/* Radio Icon */}
-                          <View style={[styles.radioCircle, isSelected && styles.radioCircleActive]}>
-                            {isSelected && <View style={styles.radioDot} />}
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                )}
-              </View>
-            )}
+        {/* Level 3: Sector */}
+        <TouchableOpacity
+          style={styles.treeHeader}
+          onPress={() => setExpandedSection(expandedSection === 'sector' ? 'cell' : 'sector')}
+        >
+          <View style={styles.treeHeaderLeft}>
+            <MapPin size={16} color={colors.primary} />
+            <Text style={styles.treeHeaderText}>Sector: {selectedSector}</Text>
+          </View>
+          {expandedSection === 'sector' ? <ChevronUp size={18} color="#64746C" /> : <ChevronDown size={18} color="#64746C" />}
+        </TouchableOpacity>
 
-            {/* Other Districts */}
-            <TouchableOpacity style={styles.treeItem}>
-              <View style={styles.treeItemLeft}>
-                <MapPin size={16} color={colors.primary} />
-                <Text style={styles.treeItemText}>Kicukiro District</Text>
-              </View>
-              <ChevronRight size={18} color={colors.textSecondary} />
-            </TouchableOpacity>
+        {expandedSection === 'sector' && (
+          <View style={styles.chipsRow}>
+            {sectorsInDistrict.map((sect: string) => (
+              <TouchableOpacity
+                key={sect}
+                style={[styles.chip, selectedSector === sect && styles.chipActive]}
+                onPress={() => {
+                  setSelectedSector(sect);
+                  const firstCell = Cells({ province: selectedProvince as any, district: selectedDistrict as any, sector: sect as any })?.[0] || '';
+                  setSelectedCell(firstCell);
+                  setExpandedSection('cell');
+                }}
+              >
+                <Text style={[styles.chipText, selectedSector === sect && styles.chipTextActive]}>
+                  {sect}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
-            <TouchableOpacity style={styles.treeItem}>
-              <View style={styles.treeItemLeft}>
-                <MapPin size={16} color={colors.primary} />
-                <Text style={styles.treeItemText}>Nyarugenge District</Text>
-              </View>
-              <ChevronRight size={18} color={colors.textSecondary} />
-            </TouchableOpacity>
+        {/* Level 4: Cell (Akagari) */}
+        <TouchableOpacity
+          style={styles.treeHeader}
+          onPress={() => setExpandedSection(expandedSection === 'cell' ? 'village' : 'cell')}
+        >
+          <View style={styles.treeHeaderLeft}>
+            <MapPin size={16} color={colors.primary} />
+            <Text style={styles.treeHeaderText}>Cell (Akagari): {selectedCell}</Text>
+          </View>
+          {expandedSection === 'cell' ? <ChevronUp size={18} color="#64746C" /> : <ChevronDown size={18} color="#64746C" />}
+        </TouchableOpacity>
+
+        {expandedSection === 'cell' && (
+          <View style={styles.listBlock}>
+            {cellsInSector
+              .filter((c: string) => !searchQuery.trim() || c.toLowerCase().includes(searchQuery.toLowerCase()))
+              .map((c: string) => {
+                const isSelected = selectedCell === c;
+                return (
+                  <TouchableOpacity
+                    key={c}
+                    style={[styles.cellListItem, isSelected && styles.cellListItemActive]}
+                    onPress={() => {
+                      setSelectedCell(c);
+                      const v = Villages({
+                        province: selectedProvince as any,
+                        district: selectedDistrict as any,
+                        sector: selectedSector as any,
+                        cell: c as any,
+                      })?.[0] || 'Center';
+                      setSelectedVillage(v);
+                      setExpandedSection('village');
+                    }}
+                  >
+                    <Text style={[styles.cellListName, isSelected && styles.cellListNameActive]}>
+                      {c} Cell
+                    </Text>
+                    {isSelected && <Check size={16} color="#16A34A" />}
+                  </TouchableOpacity>
+                );
+              })}
+          </View>
+        )}
+
+        {/* Level 5: Village (Umudugudu) */}
+        <TouchableOpacity
+          style={styles.treeHeader}
+          onPress={() => setExpandedSection(expandedSection === 'village' ? 'cell' : 'village')}
+        >
+          <View style={styles.treeHeaderLeft}>
+            <Users size={16} color={colors.primary} />
+            <Text style={styles.treeHeaderText}>Village (Umudugudu): {selectedVillage}</Text>
+          </View>
+          {expandedSection === 'village' ? <ChevronUp size={18} color="#64746C" /> : <ChevronDown size={18} color="#64746C" />}
+        </TouchableOpacity>
+
+        {expandedSection === 'village' && (
+          <View style={styles.listBlock}>
+            {villagesInCell
+              .filter((v: string) => !searchQuery.trim() || v.toLowerCase().includes(searchQuery.toLowerCase()))
+              .map((v: string) => {
+                const isSelected = selectedVillage === v;
+                return (
+                  <TouchableOpacity
+                    key={v}
+                    style={[styles.cellListItem, isSelected && styles.cellListItemActive]}
+                    onPress={() => setSelectedVillage(v)}
+                  >
+                    <Text style={[styles.cellListName, isSelected && styles.cellListNameActive]}>
+                      {v} Village
+                    </Text>
+                    {isSelected && <Check size={16} color="#16A34A" />}
+                  </TouchableOpacity>
+                );
+              })}
           </View>
         )}
       </ScrollView>
 
-      {/* Sticky Bottom Action */}
+      {/* Confirm Button */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-          <Text style={styles.confirmButtonText}>Confirm Location</Text>
+        <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirm} activeOpacity={0.88}>
+          <Text style={styles.confirmBtnText}>Confirm Location Selection</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -291,12 +410,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
-    gap: 12,
+    paddingTop: 48,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
   },
   backBtn: {
     padding: 6,
+    marginRight: 10,
   },
   headerTitleWrap: {
     flex: 1,
@@ -304,24 +425,76 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: colors.textPrimary,
+    color: '#172B24',
   },
   headerSubtitle: {
     fontSize: 12,
-    color: colors.textSecondary,
+    color: '#64746C',
+  },
+  gpsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginHorizontal: 20,
+    marginTop: 14,
+    paddingVertical: 12,
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
+    borderRadius: 14,
+  },
+  gpsButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#15803D',
+  },
+  gpsBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginHorizontal: 20,
+    marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#ECFDF5',
+    borderRadius: 10,
+  },
+  gpsBannerText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#065F46',
+  },
+  selectionSummary: {
+    marginHorizontal: 20,
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  summaryLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#64748B',
+    textTransform: 'uppercase',
+  },
+  summaryValue: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0F172A',
     marginTop: 2,
   },
   searchWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.mintBackground,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 16,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 12,
     marginHorizontal: 20,
-    paddingHorizontal: 14,
-    height: 46,
-    marginBottom: 16,
+    marginTop: 10,
+    paddingHorizontal: 12,
+    height: 44,
   },
   searchIcon: {
     marginRight: 8,
@@ -329,139 +502,108 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 13,
-    color: colors.textPrimary,
+    color: '#172B24',
   },
   treeContent: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingTop: 12,
+    paddingBottom: 24,
     gap: 8,
   },
-  treeItem: {
+  treeHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 12,
-    paddingHorizontal: 6,
+    paddingHorizontal: 14,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
-  treeItemLeft: {
+  treeHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
-  treeItemText: {
-    fontSize: 14,
+  treeHeaderText: {
+    fontSize: 13,
     fontWeight: '700',
-    color: colors.textPrimary,
+    color: '#172B24',
   },
-  indentBlock: {
-    paddingLeft: 18,
-    borderLeftWidth: 1.5,
-    borderLeftColor: colors.border,
-    marginLeft: 12,
-    gap: 4,
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
   },
-  cellRow: {
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  chipActive: {
+    backgroundColor: '#16A34A',
+    borderColor: '#16A34A',
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#475569',
+  },
+  chipTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  listBlock: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    overflow: 'hidden',
+  },
+  cellListItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
   },
-  cellRowSelected: {
-    backgroundColor: colors.mintBackground,
+  cellListItemActive: {
+    backgroundColor: '#F0FDF4',
   },
-  cellText: {
+  cellListName: {
     fontSize: 13,
-    color: colors.textPrimary,
-    fontWeight: '500',
+    color: '#1E293B',
+    fontWeight: '600',
   },
-  cellTextSelected: {
+  cellListNameActive: {
+    color: '#15803D',
     fontWeight: '800',
-    color: colors.primaryDark,
-  },
-  radioCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: colors.borderStrong,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  radioCircleActive: {
-    borderColor: colors.primary,
-  },
-  radioDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: colors.primary,
   },
   footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     paddingHorizontal: 20,
-    paddingBottom: 28,
-    paddingTop: 12,
-    backgroundColor: '#FFFFFF',
+    paddingVertical: 16,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
   },
-  confirmButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 24,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  gpsButton: {
-    flexDirection: 'row',
+  confirmBtn: {
+    backgroundColor: '#16A34A',
+    borderRadius: 14,
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    backgroundColor: colors.mintBackground,
-    borderWidth: 1,
-    borderColor: colors.primaryLight,
-    borderRadius: 16,
-    marginHorizontal: 20,
-    paddingVertical: 10,
-    marginBottom: 10,
   },
-  gpsButtonText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.primaryDark,
-  },
-  gpsBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#F0FDF4',
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-    borderRadius: 12,
-    marginHorizontal: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 10,
-  },
-  gpsBannerText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: colors.primaryDark,
-  },
-  confirmButtonText: {
+  confirmBtnText: {
     color: '#FFFFFF',
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
   },
 });
-

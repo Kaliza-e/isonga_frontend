@@ -39,29 +39,6 @@ export async function mobileApiClient<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  // If authenticated with a seeded test token, handle protected endpoints locally to prevent 401 errors
-  if (currentAuthToken && currentAuthToken.startsWith('mock-')) {
-    if (endpoint.startsWith('/auth/me')) {
-      return null as any;
-    }
-    if (endpoint.startsWith('/notifications')) {
-      return [] as any;
-    }
-    if (endpoint.startsWith('/residents/me/location')) {
-      return { success: true } as any;
-    }
-    if (endpoint.startsWith('/announcements') && (options.method === 'POST' || options.method === 'PUT')) {
-      return {
-        id: `mock-ann-${Date.now()}`,
-        status: 'PUBLISHED',
-        createdAt: new Date().toISOString(),
-      } as any;
-    }
-    if (endpoint.startsWith('/announcements')) {
-      return [] as any;
-    }
-  }
-
   const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
   const headers: Record<string, string> = {
