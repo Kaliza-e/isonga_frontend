@@ -22,7 +22,7 @@ import {
   CheckCircle2,
 } from 'lucide-react-native';
 
-const { width } = Dimensions.get('window');
+const { width, height = 800 } = Dimensions.get('window');
 
 interface OnboardingSlide {
   id: string;
@@ -47,7 +47,7 @@ const SLIDES: OnboardingSlide[] = [
     kinyarwandaSubtitle: "Guhuza Abaturage n'Umukuru w'Umudugudu",
     description:
       "Directly bridge the gap between your household and local governance. Receive verified directives, community notices, and official security advisories straight from your Village Chief (Umukuru w'Umudugudu) and Akagari council.",
-    imageUri: 'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?w=800&q=80',
+    imageUri: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=800&q=80',
     primaryIcon: Users,
     iconBg: '#DCFCE7',
     iconColor: '#15803D',
@@ -61,7 +61,7 @@ const SLIDES: OnboardingSlide[] = [
     kinyarwandaSubtitle: "Inama z'Abaturage n'Ibikorwa Rusange",
     description:
       'Never miss a monthly Umuganda gathering or mandatory village assembly. Get exact assembly locations, designated road and drainage clearing zones, required equipment, and post-meeting community resolutions.',
-    imageUri: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
+    imageUri: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&q=80',
     primaryIcon: Calendar,
     iconBg: '#FEF3C7',
     iconColor: '#D97706',
@@ -75,7 +75,7 @@ const SLIDES: OnboardingSlide[] = [
     kinyarwandaSubtitle: "Ubuzima bwa Rubanda na Gahunda za WASAC",
     description:
       "Receive timely advance notices prior to scheduled WASAC water network maintenance in your sector, routine immunization clinics with community health workers (Abajyanama b'Ubuzima), and seasonal weather updates.",
-    imageUri: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800&q=80',
+    imageUri: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=800&q=80',
     primaryIcon: HeartHandshake,
     iconBg: '#E0F2FE',
     iconColor: '#0284C7',
@@ -89,7 +89,7 @@ const SLIDES: OnboardingSlide[] = [
     kinyarwandaSubtitle: "Ubutumwa bwa SMS n'Umutekano w'Amakuru",
     description:
       'Engineered for every resident across Rwanda—accessible via smartphone mobile application or instant SMS notifications on basic feature phones. Your personal privacy is strictly safeguarded under Rwandan Law N° 058/2021.',
-    imageUri: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800&q=80',
+    imageUri: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
     primaryIcon: Radio,
     iconBg: '#DCFCE7',
     iconColor: '#16A34A',

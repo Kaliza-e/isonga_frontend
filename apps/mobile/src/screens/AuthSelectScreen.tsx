@@ -35,93 +35,95 @@ export function AuthSelectScreen({ navigation }: any) {
         <Text style={styles.title}>Isonga Connect</Text>
         <Text style={styles.motto}>Guhuza Abaturage n&apos;Ubuyobozi</Text>
         <Text style={styles.tagline}>
-          Select your portal access method below
+          Select your verified access portal below
         </Text>
       </View>
 
       {/* ═══════════════════════════════════════════════════ */}
-      {/* OPTION 1: COMMUNITY RESIDENT (Abaturage)             */}
+      {/* CARD 1: COMMUNITY RESIDENT (Abaturage)               */}
       {/* ═══════════════════════════════════════════════════ */}
       <View style={styles.card}>
         <View style={styles.cardHeader}>
           <View style={styles.residentIconWrap}>
-            <Users size={22} color="#15803D" />
+            <Users size={24} color="#15803D" strokeWidth={2.2} />
           </View>
           <View style={styles.cardHeaderMeta}>
             <View style={styles.titleBadgeRow}>
               <Text style={styles.cardTitle}>Community Resident</Text>
               <View style={styles.publicBadge}>
-                <Text style={styles.publicBadgeText}>Public</Text>
+                <Text style={styles.publicBadgeText}>Public Portal</Text>
               </View>
             </View>
             <Text style={styles.cardSubtitle}>
-              Receive verified village &amp; cell announcements, Umuganda schedules, and health alerts.
+              Stay updated on Umuganda schedules, water &amp; electricity maintenance, and local village notices.
             </Text>
           </View>
         </View>
 
-        {/* Buttons Group: Properly aligned & centered */}
+        {/* Buttons Group: Balanced, centered, full width */}
         <View style={styles.buttonGroup}>
-          {/* Primary: Resident Sign In */}
           <TouchableOpacity
             style={styles.residentSignInBtn}
             onPress={() => navigation.navigate('Login', { defaultRole: 'RESIDENT' })}
             activeOpacity={0.88}
           >
-            <LogIn size={18} color="#FFFFFF" />
-            <Text style={styles.residentSignInBtnText}>Resident Sign In</Text>
-            <ArrowRight size={18} color="#FFFFFF" />
+            <View style={styles.btnContentRow}>
+              <LogIn size={19} color="#FFFFFF" strokeWidth={2.2} />
+              <Text style={styles.residentSignInBtnText}>Resident Sign In</Text>
+            </View>
+            <ArrowRight size={19} color="#FFFFFF" strokeWidth={2.2} />
           </TouchableOpacity>
 
-          {/* Secondary: Create Account */}
           <TouchableOpacity
             style={styles.createAccountBtn}
             onPress={() => navigation.navigate('ResidentRegister')}
             activeOpacity={0.85}
           >
-            <UserPlus size={16} color="#15803D" />
+            <UserPlus size={17} color="#15803D" strokeWidth={2.2} />
             <Text style={styles.createAccountBtnText}>Create New Resident Account</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* ═══════════════════════════════════════════════════ */}
-      {/* OPTION 2: CHIEF & LOCAL LEADER (Ubuyobozi)         */}
+      {/* CARD 2: LOCAL ADMINISTRATOR & CHIEF (Ubuyobozi)     */}
       {/* ═══════════════════════════════════════════════════ */}
       <View style={[styles.card, styles.adminCard]}>
         <View style={styles.cardHeader}>
           <View style={styles.adminIconWrap}>
-            <ShieldCheck size={22} color="#B45309" />
+            <ShieldCheck size={24} color="#B45309" strokeWidth={2.2} />
           </View>
           <View style={styles.cardHeaderMeta}>
             <View style={styles.titleBadgeRow}>
-              <Text style={styles.cardTitle}>Chief &amp; Local Leader</Text>
+              <Text style={styles.cardTitle}>Local Administrator</Text>
               <View style={styles.adminBadge}>
-                <Text style={styles.adminBadgeText}>Authorized</Text>
+                <Text style={styles.adminBadgeText}>Gov-RW Secure</Text>
               </View>
             </View>
             <Text style={styles.cardSubtitle}>
-              Umukuru w&apos;Umudugudu, Akagari Executive, and Sector leaders publishing community notices.
+              Umukuru w&apos;Umudugudu, Akagari Executive, and Sector leaders broadcasting verified notices.
             </Text>
           </View>
         </View>
 
-        {/* Button: Properly aligned & centered */}
+        {/* Buttons Group */}
         <View style={styles.buttonGroup}>
           <TouchableOpacity
             style={styles.adminSignInBtn}
             onPress={() => navigation.navigate('Login', { defaultRole: 'ADMIN' })}
             activeOpacity={0.88}
           >
-            <ShieldCheck size={18} color="#FFFFFF" />
-            <Text style={styles.adminSignInBtnText}>Local Administrator Sign In</Text>
-            <ArrowRight size={18} color="#FFFFFF" />
+            <View style={styles.btnContentRow}>
+              <ShieldCheck size={19} color="#FFFFFF" strokeWidth={2.2} />
+              <Text style={styles.adminSignInBtnText}>Local Administrator Sign In</Text>
+            </View>
+            <ArrowRight size={19} color="#FFFFFF" strokeWidth={2.2} />
           </TouchableOpacity>
 
           <View style={styles.adminVerificationNote}>
-            <Lock size={12} color="#92400E" />
+            <Lock size={13} color="#92400E" strokeWidth={2.2} />
             <Text style={styles.adminVerificationNoteText}>
-              Verified against assigned village &amp; cell administrative jurisdiction
+              Restricted to verified local administrative officials
             </Text>
           </View>
         </View>
@@ -129,9 +131,9 @@ export function AuthSelectScreen({ navigation }: any) {
 
       {/* Legal & Compliance Footer */}
       <View style={styles.footerNote}>
-        <CheckCircle2 size={13} color="#16A34A" />
+        <CheckCircle2 size={13} color="#16A34A" strokeWidth={2.2} />
         <Text style={styles.footerNoteText}>
-          Law N° 058/2021 Data Protection • Masked Phone Privacy
+          Law N° 058/2021 Data Protection • Official Gov-RW Civic Node
         </Text>
       </View>
     </ScrollView>
@@ -145,12 +147,12 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 56 : 46,
+    paddingTop: Platform.OS === 'ios' ? 56 : 42,
     paddingBottom: 40,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 22,
+    marginBottom: 24,
   },
   logoBadge: {
     width: 76,
@@ -187,16 +189,16 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 18,
-    marginBottom: 16,
+    borderRadius: 22,
+    padding: 20,
+    marginBottom: 18,
     borderWidth: 1.5,
     borderColor: '#DCFCE7',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowColor: '#0F291E',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
   },
   adminCard: {
     borderColor: '#FDE68A',
@@ -204,21 +206,22 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
+    gap: 14,
+    marginBottom: 18,
+    alignItems: 'flex-start',
   },
   residentIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     backgroundColor: '#DCFCE7',
     alignItems: 'center',
     justifyContent: 'center',
   },
   adminIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     backgroundColor: '#FEF3C7',
     alignItems: 'center',
     justifyContent: 'center',
@@ -239,9 +242,9 @@ const styles = StyleSheet.create({
   },
   publicBadge: {
     backgroundColor: '#DCFCE7',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: 10,
   },
   publicBadgeText: {
     fontSize: 10,
@@ -251,9 +254,9 @@ const styles = StyleSheet.create({
   },
   adminBadge: {
     backgroundColor: '#FEF3C7',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: 10,
   },
   adminBadgeText: {
     fontSize: 10,
@@ -262,31 +265,37 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   cardSubtitle: {
-    fontSize: 12,
+    fontSize: 12.5,
     color: '#4B6358',
-    lineHeight: 17,
+    lineHeight: 18,
   },
   buttonGroup: {
+    gap: 12,
+  },
+  btnContentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 10,
   },
   residentSignInBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
+    justifyContent: 'space-between',
     backgroundColor: '#16A34A',
-    height: 48,
-    borderRadius: 14,
+    height: 52,
+    borderRadius: 15,
+    paddingHorizontal: 18,
     shadowColor: '#16A34A',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.22,
+    shadowRadius: 8,
     elevation: 3,
   },
   residentSignInBtnText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '800',
+    letterSpacing: -0.2,
   },
   createAccountBtn: {
     flexDirection: 'row',
@@ -296,32 +305,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0FDF4',
     borderWidth: 1.5,
     borderColor: '#BBF7D0',
-    height: 44,
-    borderRadius: 14,
+    height: 48,
+    borderRadius: 15,
   },
   createAccountBtnText: {
     color: '#15803D',
-    fontSize: 13,
+    fontSize: 13.5,
     fontWeight: '700',
   },
   adminSignInBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
+    justifyContent: 'space-between',
     backgroundColor: '#D97706',
-    height: 48,
-    borderRadius: 14,
+    height: 52,
+    borderRadius: 15,
+    paddingHorizontal: 18,
     shadowColor: '#D97706',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.22,
+    shadowRadius: 8,
     elevation: 3,
   },
   adminSignInBtnText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '800',
+    letterSpacing: -0.2,
   },
   adminVerificationNote: {
     flexDirection: 'row',
@@ -331,80 +341,18 @@ const styles = StyleSheet.create({
     paddingTop: 2,
   },
   adminVerificationNoteText: {
-    fontSize: 11,
+    fontSize: 11.5,
     color: '#92400E',
+    fontWeight: '600',
     textAlign: 'center',
-  },
-  demoBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  demoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 10,
-  },
-  demoTitle: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#334155',
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
-  },
-  demoRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  demoBtnAdmin: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: '#FEF3C7',
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-    height: 38,
-    borderRadius: 10,
-  },
-  demoBtnAdminText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#92400E',
-  },
-  demoBtnResident: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: '#DCFCE7',
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-    height: 38,
-    borderRadius: 10,
-  },
-  demoBtnResidentText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#166534',
   },
   footerNote: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    paddingVertical: 4,
+    paddingVertical: 10,
+    marginTop: 4,
   },
   footerNoteText: {
     fontSize: 11,
